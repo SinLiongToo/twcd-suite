@@ -659,8 +659,23 @@
       <div id="modal-content-changelog" class="hidden space-y-3 text-xs leading-relaxed">
         <div class="p-3 bg-indigo-50/70 dark:bg-indigo-950/40 rounded-xl border border-indigo-200 dark:border-indigo-800">
           <div class="flex items-center justify-between font-bold text-indigo-700 dark:text-indigo-300 mb-1">
-            <span>v2.1 (效能飛躍與語言學增強版)</span>
+            <span>v2.2 (教育部真人原音串流與英文半形標點升級版)</span>
             <span class="text-[10px] text-indigo-500 font-bold">當前版本</span>
+          </div>
+          <ul class="list-disc list-inside space-y-0.5 text-slate-600 dark:text-slate-300">
+            <li><strong>外接教育部 / ChhoeTaigi 21,700+ 真人原音</strong>：整合教育部辭典與 ChhoeTaigi 鏡像，收錄 21,769 條純正閩南語/台語母語播音員真人原音檔。</li>
+            <li><strong>音訊排隊連續播放 (Audio Queue)</strong>：長篇文章自動最長分詞連續播放，詞與詞之間維持 80ms 擬真自然停頓。</li>
+            <li><strong>雙模發音架構 (Dual-Mode Fallback)</strong>：真人音檔優先，生僻詞或離線無縫降級呼叫本機 Web Speech API 語音合成。</li>
+            <li><strong>全羅英文半形標點規範</strong>：轉為全羅時（HL ➔ CL 及 HG ➔ 全羅），中文全形標點自動轉換為標準英文半形標點（<code>, . ! ? : ; " ' ( )</code>），嚴格遵循西文排版空格規則與句首大寫。</li>
+            <li><strong>播放即時狀態切換 (Toggle)</strong>：發音按鈕支援播放中一鍵中斷，附紅色脈衝指示。</li>
+            <li><strong>辭典檢索即點即播</strong>：在辭典庫檢索結果中，凡有收錄音檔的詞條即顯示「真人發音」按鈕。</li>
+          </ul>
+        </div>
+
+        <div class="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700/60">
+          <div class="flex items-center justify-between font-bold text-slate-700 dark:text-slate-300 mb-1">
+            <span>v2.1 (效能飛躍與語言學增強版)</span>
+            <span class="text-[10px] text-slate-400">效能躍升</span>
           </div>
           <ul class="list-disc list-inside space-y-0.5 text-slate-600 dark:text-slate-300">
             <li><strong>Trie 字典樹 100x 提速</strong>：以單趟 $O(M)$ 貪婪最大匹配取代陣列掃描，15,000 字轉譯只需 1.8ms。</li>
