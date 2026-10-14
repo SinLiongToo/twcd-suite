@@ -5,7 +5,7 @@
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-success?logo=github)](https://sinliongtoo.github.io/twcd-suite/)
 [![Language](https://img.shields.io/badge/Language-JavaScript%20%7C%20HTML5%20%7C%20CSS3-blue)](#)
-[![Data](https://img.shields.io/badge/Dictionary-104%2C000%2B%20Entries-emerald)](#)
+[![Data](https://img.shields.io/badge/Dictionary-113%2C000%2B%20Entries-emerald)](#)
 [![Audio](https://img.shields.io/badge/Audio-21%2C700%2B%20Native%20Recordings-red)](#)
 [![Offline](https://img.shields.io/badge/Offline-100%25%20Zero--Dependency-indigo)](#)
 [![License](https://img.shields.io/badge/License-Academic%20%26%20Open%20Source-amber)](#)
@@ -25,19 +25,28 @@
 
 ---
 
-## 🏛️ 詞庫來源、授權規範與雙庫互補機制 (Dictionary Architecture & Priority)
+## 🏛️ 詞庫來源、授權規範與四大辭典體系互補機制 (Dictionary Architecture & Priority)
 
-本專案深度整合兩大具歷史與權威代表性的台文數位資料庫，透過**「官方標準優先、民間海量互補、檢索兩者並陳」**的現代化雙庫架構，達成超過 **104,000+ 條**的龐大詞庫容量與近乎 100% 的標音精準度：
+本專案深度整合四大具歷史、現代文學、早期醫學與官方權威代表性的台文數位資料庫與特藏，透過**「官方標準引導、自創文史專修、民間海量互補、全庫並陳檢索」**的四層級互補架構，達成超過 **113,000+ 條**的龐大詞庫容量與近乎 100% 的標音精準度：
 
 ```mermaid
 flowchart TD
-    User["使用者輸入文本"] --> Engine{"雙庫決策引擎"}
+    User["使用者輸入文本"] --> Engine{"多階層辭典決策引擎"}
     
+    subgraph Priority0 ["第 0 優先：使用者自訂詞庫 (Custom LocalStorage)"]
+        C1["使用者自訂華台對照 / 強迫不轉詞彙"]
+    end
+
     subgraph Priority1 ["第一優先：教育部 / 萌典標準庫 (20,604 條)"]
         M1["教育部推薦漢字規範"]
         M2["標準音節連字符 (Hyphen)"]
         M3["詳細釋義 / 詞性 / 生活例句"]
         M4["21,700+ 條母語播音員真人原音"]
+    end
+
+    subgraph Priority15 ["第 1.5 優先：自創台語辭書特藏 (9,158 條)"]
+        S1["📜 杜信龍《七字孽 chhit-jī-gia̍t》台語詞典 (8,139 詞)<br>當代文學、七字仔詩歌語料、獨創韻腳例句"]
+        S2["🩺 鄭仁壽《內外科看護學》(1917) 醫學語彙庫 (1,019 詞)<br>早期台英漢三語對照護理醫學史料專門詞"]
     end
     
     subgraph Priority2 ["第二補充：TWCD 經典片語庫 (42,337 條)"]
@@ -46,28 +55,36 @@ flowchart TD
         T3["早期經典華台對照庫 (14,136 條)"]
     end
 
-    Engine -->|"詞目兩者皆有 (如: 日頭、教會)"| Priority1
-    Engine -->|"教育部查無此詞 (如: 民間俚語、俗諺)"| Priority2
+    Engine --> Priority0
+    Engine -->|"詞目收錄於教育部標準"| Priority1
+    Engine -->|"收錄於文學詩詞或醫學專門史料"| Priority15
+    Engine -->|"其餘詞彙自動銜接民間海量庫"| Priority2
     
-    Priority1 --> Output["輸出現代化精準台文 / 標準連字符全羅"]
+    Priority0 --> Output["輸出現代化精準台文 / 標準連字符全羅"]
+    Priority1 --> Output
+    Priority15 --> Output
     Priority2 --> Output
     
-    UserSearch["辭典庫檢索 (Tab 6)"] --> Both["兩者並陳卡片展示：上方官方權威釋義，下方民間經典對照"]
+    UserSearch["辭典庫檢索 (Tab 6)"] --> All["四庫並陳卡片展示：官方權威、七字孽詩文、內外科看護學醫學詞、TWCD經典對照"]
 ```
 
 ### 1. 資料來源與開源授權依據
-| 資料庫 | 原始來源與作者 | 授權協議 | 特色與強項 |
+| 資料庫 | 原始來源與作者 | 授權協議 / 典藏出處 | 特色與強項 |
 | :--- | :--- | :--- | :--- |
 | **教育部《臺灣台語常用詞辭典》 / 萌典** | 中華民國教育部<br>g0v 零時政府開源專案（唐鳳發起） | **政府資料開放授權條款 (Open Gov Data)**<br>CC BY-ND 3.0 臺灣版<br>g0v 整理資料採 **CC0 1.0 (公眾領域)** | **【官方權威標準】**<br>現代教育部推薦用字、標準音節連字符（`-`）、完整詞性分類、台語/台羅/華語三對照例句、21,700+ 條真人播音錄音檔。 |
+| **杜信龍《七字孽 chhit-jī-gia̍t》台語詞典** | 杜信龍 (Tō͘ Sìn-liông) 著作<br>[線上版 WebApp](https://sinliongtoo.github.io/CHHITJIA_JITIAN/) • [讀墨 Readmoo 電子書](https://readmoo.com/book/210419207000101) | 作者杜信龍授權集成 | **【當代原創文學特藏】**<br>收錄 8,139 條精選詞目。以獨創七字仔七言四句詩韻入詞，每一詞目皆附有原創台語詩文例句與全羅拼音，深具文學語感與押韻美學價值。 |
+| **鄭仁壽《內外科看護學》(1917) 醫學語彙** | 鄭仁壽 (Teh Jîn-siū) 編譯 (1917)<br>杜信龍 (Tō͘ Sìn-liông) 現代數位化輯校<br>[線上版電子書庫](https://sinliongtoo.github.io/laigoakho_Tejinsiu_ebook/#/) | 公有領域歷史文獻 (Public Domain 1917)<br>數位化版本由杜信龍整理開放 | **【早期醫學護理史料】**<br>收錄 1,019 條珍貴台英漢三語對照早期護理醫學術語（包含白話字、漢字、英文對照與解剖、病理、藥物、看護技術註釋）。 |
 | **TWCD (Taiwanese Word Conversion Database)** | 信望愛資訊中心 (FHL) 台文專案團隊<br>蔡哲民老師、陳昆池老師、鄭良偉教授 | 學術非營利開源 (Academic Open Source) | **【民間海量文獻】**<br>收錄高達 42,337 條漢羅全羅片語、26,580 條反向對照、14,136 條華台翻譯。涵蓋大量民間俚語、俗諺與教會白話字經典文獻。 |
 
 ### 2. 詞庫優先權與互補機制 (Priority & Complementarity Rules)
 - **規範優先 (MOE First)**：
   在「漢羅轉全羅」與「華轉台」轉換時，若詞彙同時收錄於兩庫中（例如「日頭」、「教會」），**優先採用教育部萌典的標準音標與連字符（`ji̍t-thâu`、`kàu-hōe`）**，徹底消除舊版 TWCD 緊縮連寫（`ji̍tthâu`）沒有 `-` 的歷史缺陷。
+- **專門特藏中繼 (Literary & Medical Mid-Priority)**：
+  遇到當代文學押韻詞或 1917 早期台語護理醫學名詞時，自動匹配杜信龍《七字孽》（8,139 詞）與鄭仁壽《內外科看護學》（1,019 詞），保留專業術語與文學原創讀音。
 - **全域互補 (TWCD Fallback)**：
   教育部辭典以 20,600+ 條日常常用詞為主，對於民間更生動的本土俚語、俗諺、老地名或教會專名，**全自動由 TWCD 42,000+ 條龐大詞庫接續轉譯**，保證詞庫容量不受限。
-- **雙庫並陳 (Search Dual-Presentation)**：
-  在「辭典庫檢索」功能中，當使用者查詢單字或詞彙時，**官方標準與民間經典並陳展示**：頂部卡片詳細展示教育部萌典的詞性、白話釋義、3 語例句與真人原音；下方緊接著條列 TWCD 經典對照，讓台文研究者與自學者能直接比較官方規範與民間文獻的異同。
+- **四庫並陳 (Search Multi-Presentation)**：
+  在「辭典庫檢索」功能中，當使用者查詢單字或詞彙時，**官方標準、文學特藏、醫學專門與民間經典四者並陳展示**：頂部卡片詳細展示教育部萌典的詞性、白話釋義、3 語例句與真人原音；接著展示《七字孽》的詩歌例句卡片與《內外科看護學》的三語對照卡片；下方緊接著條列 TWCD 經典對照。
 
 ---
 
@@ -150,7 +167,22 @@ flowchart TD
 
 ## 📜 版本演進與變更紀錄 (Changelog)
 
-### **v2.3 (教育部萌典 20,600+ 離線詞庫與雙庫互補升級版 - 當前版本)**
+### **v2.4 (自創台語辭書特藏：杜信龍《七字孽》與鄭仁壽《內外科看護學》整合版 - 當前版本)**
+- **📜 整合杜信龍《七字孽 chhit-jī-gia̍t》台語詞典 (8,139 詞)**：
+  - 完整收錄當代原創七字仔詩歌語料，涵蓋台語詞目、羅馬字注音、原創台語詩歌例句（漢羅對照）與押韻美學。
+  - 辭典檢索展示專屬翡翠綠卡片，支援點擊直達《七字孽》線上字典 WebApp 與讀墨 (Readmoo) 電子書頁面。
+- **🩺 整合鄭仁壽《內外科看護學》(1917) 早期醫學語彙庫 (1,019 詞)**：
+  - 完整收錄 1917 年台灣早期西醫護理經典文獻專用詞，包含教會白話字 (POJ)、漢字、英文醫學術語及病理/解剖/藥物/看護技術註解。
+  - 辭典檢索展示專屬琥珀橘卡片，提供醫學雙語/三語考證與直達電子書章節連結。
+- **⚖️ 四層級詞典優先級與音節連字符擴展**：
+  - 核心轉譯引擎升級為「自訂 ➔ 教育部/萌典 ➔ 七字孽/內外科看護學 ➔ TWCD 經典庫」四階決策體系。
+  - 自動從兩大新藏中提取多音節標準連字符注音，進一步擴大連字符覆蓋庫。
+- **📦 100% 離線純前端打包**：
+  - 將 9,158 條新文史語彙預編譯為 `data_user_dicts.js`，無須任何額外網路請求，隨點隨查。
+
+---
+
+### **v2.3 (教育部萌典 20,600+ 離線詞庫與雙庫互補升級版)**
 - **🏛️ 離線整編萌典 20,604 詞庫**：完整收錄教育部/萌典 20,604 條台語詞目、詳細詞性、華語白話釋義與日常對話例句（台語漢字/台羅拼音/華語翻譯三對照），100% 純前端離線可用。
 - **⚖️ 實作雙庫優先權架構 (MOE First & Fallback)**：轉換時「教育部萌典為先，TWCD 補其不足」；辭典庫檢索時官方標準與民間經典兩者並陳呈現。
 - **➖ 28,000+ 詞音節連字符全面覆蓋**：深度融合萌典音節庫，音節連字符（Hyphen）字典擴充至 28,242 條，全羅轉換音節連寫問題徹底規範化。
@@ -228,9 +260,12 @@ flowchart TD
 | 檔案路徑 | 角色與功能 |
 | :--- | :--- |
 | [`index.html`](file:///c:/Users/tu-hs/OneDrive/%E6%96%87%E4%BB%B6/2022_0308_MASA/2022-0708/Projects_antigravity/REVERSE_eng_translate_offline/index.html) | 現代化單頁 Web 應用程式（含 6 大操作模組與來源/版本彈窗） |
-| [`app.js`](file:///c:/Users/tu-hs/OneDrive/%E6%96%87%E4%BB%B6/2022_0308_MASA/2022-0708/Projects_antigravity/REVERSE_eng_translate_offline/app.js) | 前端 UI 互動控制器（分頁切換、富文本複製、深淺主題切換、雙模發音） |
-| [`engine.js`](file:///c:/Users/tu-hs/OneDrive/%E6%96%87%E4%BB%B6/2022_0308_MASA/2022-0708/Projects_antigravity/REVERSE_eng_translate_offline/engine.js) | 核心轉譯引擎（華台、漢羅、全羅、Ruby、CTS 音標轉換與除重排序） |
+| [`app.js`](file:///c:/Users/tu-hs/OneDrive/%E6%96%87%E4%BB%B6/2022_0308_MASA/2022-0708/Projects_antigravity/REVERSE_eng_translate_offline/app.js) | 前端 UI 互動控制器（分頁切換、富文本複製、深淺主題切換、雙模發音、辭典檢索多卡片呈現） |
+| [`engine.js`](file:///c:/Users/tu-hs/OneDrive/%E6%96%87%E4%BB%B6/2022_0308_MASA/2022-0708/Projects_antigravity/REVERSE_eng_translate_offline/engine.js) | 核心轉譯引擎（多階層辭典決策、華台/漢羅/全羅/Ruby/CTS 音標轉換與除重排序） |
 | [`data.js`](file:///c:/Users/tu-hs/OneDrive/%E6%96%87%E4%BB%B6/2022_0308_MASA/2022-0708/Projects_antigravity/REVERSE_eng_translate_offline/data.js) | 84,000+ 條字典資料 + 21,700+ 教育部音檔映射（支援離線直接讀取） |
+| [`data_moedict.js`](file:///c:/Users/tu-hs/OneDrive/%E6%96%87%E4%BB%B6/2022_0308_MASA/2022-0708/Projects_antigravity/REVERSE_eng_translate_offline/data_moedict.js) | 20,604 條教育部萌典台語離線字典（詞性、白話釋義、例句對照） |
+| [`data_user_dicts.js`](file:///c:/Users/tu-hs/OneDrive/%E6%96%87%E4%BB%B6/2022_0308_MASA/2022-0708/Projects_antigravity/REVERSE_eng_translate_offline/data_user_dicts.js) | 9,158 條自創特藏離線字典（杜信龍《七字孽》8,139 詞 + 鄭仁壽《內外科看護學》1,019 詞） |
+| `build_user_dicts.js` | 自創特藏抽取與離線 JS 打包腳本 |
 | `data/audio_map.json` | 教育部 21,769 條字詞與音檔編號映射 JSON |
 | `build_audio_data.py` | 音檔索引與資料庫打包建構腳本 |
 | [`start_app.bat`](file:///c:/Users/tu-hs/OneDrive/%E6%96%87%E4%BB%B6/2022_0308_MASA/2022-0708/Projects_antigravity/REVERSE_eng_translate_offline/start_app.bat) | Windows 快速啟動批次檔 |
@@ -245,10 +280,13 @@ flowchart TD
    - **信望愛資訊中心 (FHL) 台語文專案團隊**
    - **蔡哲民 老師 (tjm)**（CTS 客語與音標編碼轉換演算法研發者、聖經台文資訊化推手）
    - **陳昆池 老師 (Tan Khun-ti)**（CL_HL / HL_CL 龐大漢羅與專有名詞片語庫編審者）
-2. **正字擴充規範與語音資料**：
+2. **官方正字規範與語音資料**：
    - 中華民國教育部《臺灣台語常用詞辭典》（臺灣閩南語常用詞辭典）標準推薦字與真人發音音檔
    - 中華民國教育部《臺灣閩南語羅馬字拼音方案》(Tâi-lô)
    - **ChhoeTaigi (找台語) 開源社群**（KipSutianData / KipSutianDataMirror 原音 CDN 鏡像維護）
-3. **Next-Gen 重構維護**：
+   - **g0v 零時政府**（萌典開源專案）
+3. **自創台語文史特藏輯錄**：
+   - **杜信龍 老師 (Tō͘ Sìn-liông)**：編著當代原創《七字孽 chhit-jī-gia̍t》台語詩歌文學辭典（8,139 詞），並數位化輯校鄭仁壽 (1917)《內外科看護學》早期護理醫學雙語/三語辭典（1,019 詞）。
+4. **Next-Gen 重構維護**：
    - 現代化 AI 軟體工程團隊逆向工程重製，秉持母語數位化開源傳承精神。
 

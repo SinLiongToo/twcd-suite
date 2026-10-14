@@ -587,16 +587,19 @@ document.addEventListener('DOMContentLoaded', function () {
     const notranCnt = (Engine.data && Engine.data.hg_notran ? Engine.data.hg_notran.length : 0);
     const audioCnt = (Engine.data && Engine.data.audio ? Object.keys(Engine.data.audio).length : 0);
     const moedictCnt = Object.keys(Engine.getMoedictData()).length;
+    const uDicts = Engine.getUserDicts();
+    const chhitjiaCnt = Object.keys(uDicts.chhitjia || {}).length;
+    const laigoakhoCnt = (uDicts.laigoakho || []).length;
 
     const el = document.getElementById('dict-stats-summary');
     if (el) {
       el.innerHTML = `
-        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-200">🏛️ 教育部/萌典：${moedictCnt || 20604} 詞 (含釋義例句)</span>
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-200">🏛️ 教育部/萌典：${moedictCnt || 20604} 詞</span>
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200">📜 杜信龍《七字孽》：${chhitjiaCnt || 8139} 詞</span>
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200">🩺 鄭仁壽《內外科看護學》：${laigoakhoCnt || 1019} 詞</span>
         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-100 text-teal-800 dark:bg-teal-900/50 dark:text-teal-300">🎙️ 教育部真人音檔：${audioCnt}</span>
         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300">華台片語：${hgCnt}</span>
-        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300">全羅轉漢羅：${clhlCnt}</span>
         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300">漢羅轉全羅：${hlclCnt}</span>
-        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300">Ruby標音：${rubyCnt}</span>
         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-800 dark:bg-rose-900/50 dark:text-rose-300">不轉詞彙：${notranCnt}</span>
       `;
     }
@@ -614,6 +617,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // 1. Priority 1: 教育部 / 萌典辭典 (MOE / Moedict)
     const moeResults = Engine.queryMoedict(q, 15);
 
+    // 1.5. Priority 1.5: 使用者特藏專屬詞庫 (杜信龍《七字孽》 & 鄭仁壽《內外科看護學》)
+    const userDictResults = Engine.queryUserDicts(q, 15);
+
     // 2. Priority 2: TWCD 經典庫 (TWCD Classical Corpus)
     const twcdResults = [];
     const hgList = (Engine.data && Engine.data.hg_tg) || [];
@@ -630,7 +636,12 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
 
-    if (moeResults.length === 0 && twcdResults.length === 0) {
+    const hasAnyResults = moeResults.length > 0 || 
+      userDictResults.chhitjia.length > 0 || 
+      userDictResults.laigoakho.length > 0 || 
+      twcdResults.length > 0;
+
+    if (!hasAnyResults) {
       dictSearchResult.innerHTML = `<div class="text-sm text-slate-400 p-8 text-center bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-800">找不到包含「${q}」的詞條</div>`;
       return;
     }
@@ -697,6 +708,92 @@ document.addEventListener('DOMContentLoaded', function () {
                 </div>
               `;
             }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // Render Chhitjia Results (杜信龍《七字孽》)
+    if (userDictResults.chhitjia.length > 0) {
+      html += `
+        <div class="mb-5">
+          <div class="flex items-center justify-between mb-2 pb-1 border-b border-emerald-200 dark:border-emerald-900/50">
+            <h4 class="text-xs font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider flex items-center space-x-1.5">
+              <span>📜 杜信龍《七字孽 chhit-jī-gia̍t》詞典（七字仔語境詩歌）</span>
+              <span class="px-2 py-0.5 text-[10px] bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200 rounded-full font-sans">${userDictResults.chhitjia.length} 筆</span>
+            </h4>
+          </div>
+          <div class="space-y-3">
+            ${userDictResults.chhitjia.map(item => {
+              const examplesHtml = (item.e || []).map(ex => `
+                <div class="mt-1 pl-2.5 border-l-2 border-emerald-200 dark:border-emerald-800 text-xs space-y-0.5">
+                  <div class="font-medium text-slate-800 dark:text-slate-200 flex items-center space-x-1.5">
+                    <span class="text-[10px] font-bold px-1.5 py-0.2 bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 rounded">【${ex.t || '七字孽'}】</span>
+                    <span>${ex.h || ''}</span>
+                  </div>
+                  ${ex.r ? `<div class="font-mono text-emerald-600 dark:text-emerald-400 text-[11px]">${ex.r}</div>` : ''}
+                </div>
+              `).join('');
+
+              return `
+                <div class="p-3.5 bg-emerald-50/40 dark:bg-slate-800/80 rounded-xl border border-emerald-100 dark:border-emerald-900/40 shadow-xs">
+                  <div class="flex items-start justify-between gap-2 mb-2 pb-2 border-b border-emerald-100/60 dark:border-emerald-900/30">
+                    <div>
+                      <div class="flex items-baseline space-x-2">
+                        <span class="text-lg font-bold font-serif text-slate-900 dark:text-white">${item.word}</span>
+                        <span class="text-sm font-mono font-medium text-emerald-600 dark:text-emerald-400">${item.r || ''}</span>
+                      </div>
+                    </div>
+                    <div class="flex items-center space-x-2 shrink-0">
+                      <a href="https://sinliongtoo.github.io/CHHITJIA_JITIAN/" target="_blank" rel="noopener noreferrer" class="px-2 py-1 text-xs text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 font-medium transition" title="前往《七字孽》專屬線上辭典">
+                        七字孽辭典 ↗
+                      </a>
+                      <a href="https://readmoo.com/book/210456880000101" target="_blank" rel="noopener noreferrer" class="px-2 py-1 text-xs text-amber-600 hover:text-amber-700 dark:text-amber-400 font-medium transition" title="前往 Readmoo 讀墨購買電子書">
+                        讀墨 ↗
+                      </a>
+                    </div>
+                  </div>
+                  <div class="space-y-1">
+                    ${examplesHtml}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // Render Laigoakho Results (鄭仁壽《內外科看護學》1917)
+    if (userDictResults.laigoakho.length > 0) {
+      html += `
+        <div class="mb-5">
+          <div class="flex items-center justify-between mb-2 pb-1 border-b border-amber-200 dark:border-amber-900/50">
+            <h4 class="text-xs font-bold text-amber-700 dark:text-amber-300 uppercase tracking-wider flex items-center space-x-1.5">
+              <span>🩺 鄭仁壽《內外科看護學》醫學語彙庫（1917 台英漢三語辭彙）</span>
+              <span class="px-2 py-0.5 text-[10px] bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200 rounded-full font-sans">${userDictResults.laigoakho.length} 筆</span>
+            </h4>
+          </div>
+          <div class="space-y-2">
+            ${userDictResults.laigoakho.map(item => `
+              <div class="p-3 bg-amber-50/40 dark:bg-slate-800/80 rounded-xl border border-amber-100 dark:border-amber-900/40 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <div class="flex items-baseline space-x-2">
+                    <span class="text-base font-bold font-serif text-slate-900 dark:text-white">${item.h || ''}</span>
+                    <span class="text-sm font-mono font-medium text-amber-600 dark:text-amber-400">${item.p || ''}</span>
+                  </div>
+                  <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex items-center space-x-2">
+                    <span class="font-medium text-slate-700 dark:text-slate-300">英文：${item.e || ''}</span>
+                    ${item.n ? `<span class="italic text-slate-400">(${item.n})</span>` : ''}
+                  </div>
+                </div>
+                <div class="shrink-0 text-right">
+                  <a href="https://sinliongtoo.github.io/laigoakho_Tejinsiu_ebook/#/05_glossary/medical_glossary" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 text-xs rounded bg-amber-100 hover:bg-amber-200 dark:bg-amber-950 dark:hover:bg-amber-900 text-amber-800 dark:text-amber-200 font-medium transition">
+                    查閱原書 ↗
+                  </a>
+                </div>
+              </div>
+            `).join('')}
           </div>
         </div>
       `;

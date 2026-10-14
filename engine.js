@@ -89,8 +89,60 @@
       if (global.MOEDICT_DATA) {
         this.moedict = global.MOEDICT_DATA;
       }
+      if (global.USER_DICTS) {
+        this.userDicts = global.USER_DICTS;
+      }
       this.loadCustomFromStorage();
       this.buildCharFallback();
+    },
+
+    getUserDicts: function () {
+      if (this.userDicts && (Object.keys(this.userDicts.chhitjia || {}).length > 0 || (this.userDicts.laigoakho || []).length > 0)) {
+        return this.userDicts;
+      }
+      if (typeof window !== 'undefined' && window.USER_DICTS) {
+        this.userDicts = window.USER_DICTS;
+        return this.userDicts;
+      }
+      if (typeof global !== 'undefined' && global.USER_DICTS) {
+        this.userDicts = global.USER_DICTS;
+        return this.userDicts;
+      }
+      return { chhitjia: {}, laigoakho: [] };
+    },
+
+    queryUserDicts: function (keyword, maxCount = 15) {
+      if (!keyword) return { chhitjia: [], laigoakho: [] };
+      const q = keyword.trim().toLowerCase();
+      if (!q) return { chhitjia: [], laigoakho: [] };
+      const uDicts = this.getUserDicts();
+
+      // 1. Chhitjia (杜信龍《七字孽》)
+      const chhitjiaMatches = [];
+      for (const [word, info] of Object.entries(uDicts.chhitjia || {})) {
+        const wLower = word.toLowerCase();
+        const rLower = (info.r || '').toLowerCase();
+        if (wLower === q || wLower.startsWith(q) || wLower.includes(q) || rLower.includes(q)) {
+          chhitjiaMatches.push({ word, ...info });
+          if (chhitjiaMatches.length >= maxCount) break;
+        }
+      }
+
+      // 2. Laigoakho (鄭仁壽《內外科看護學》)
+      const laigoakhoMatches = [];
+      const list = uDicts.laigoakho || [];
+      for (let i = 0; i < list.length; i++) {
+        const item = list[i];
+        const hMatch = item.h && item.h.toLowerCase().includes(q);
+        const pMatch = item.p && item.p.toLowerCase().includes(q);
+        const eMatch = item.e && item.e.toLowerCase().includes(q);
+        if (hMatch || pMatch || eMatch) {
+          laigoakhoMatches.push(item);
+          if (laigoakhoMatches.length >= maxCount) break;
+        }
+      }
+
+      return { chhitjia: chhitjiaMatches, laigoakho: laigoakhoMatches };
     },
 
     getMoedictData: function () {
@@ -201,6 +253,27 @@
               map.set(unhypTl, cleanR);
             }
           }
+        }
+      }
+
+      // 0b. From User Dicts (杜信龍《七字孽》與 鄭仁壽《內外科看護學》)
+      const uDicts = this.getUserDicts();
+      for (const [w, info] of Object.entries(uDicts.chhitjia || {})) {
+        if (!info.r || !info.r.includes('-')) continue;
+        const cleanR = info.r.trim();
+        const unhyp = cleanR.replace(/[\s-]/g, '').toLowerCase();
+        if (!map.has(unhyp) && unhyp.length >= 3) {
+          map.set(unhyp, cleanR);
+        }
+      }
+      const mList = uDicts.laigoakho || [];
+      for (let i = 0; i < mList.length; i++) {
+        const item = mList[i];
+        if (!item.p || !item.p.includes('-')) continue;
+        const cleanP = item.p.trim();
+        const unhyp = cleanP.replace(/[\s-]/g, '').toLowerCase();
+        if (!map.has(unhyp) && unhyp.length >= 3) {
+          map.set(unhyp, cleanP);
         }
       }
 
@@ -318,6 +391,37 @@
         }
         curr.val = pojVal;
         curr.src = word;
+      }
+
+      // Priority 1.5: 杜信龍《七字孽》與 鄭仁壽《內外科看護學》特藏詞庫
+      const uDicts = this.getUserDicts();
+      for (const [word, info] of Object.entries(uDicts.chhitjia || {})) {
+        if (!info.r) continue;
+        const pojVal = this.ctsConvert(info.r, 'tailo_unicode', 'poj_unicode');
+        let curr = root;
+        for (const ch of word) {
+          if (!curr.next.has(ch)) curr.next.set(ch, this._createTrieNode());
+          curr = curr.next.get(ch);
+        }
+        if (!curr.val) {
+          curr.val = pojVal;
+          curr.src = word;
+        }
+      }
+
+      const mList = uDicts.laigoakho || [];
+      for (let i = 0; i < mList.length; i++) {
+        const item = mList[i];
+        if (!item.h || !item.p) continue;
+        let curr = root;
+        for (const ch of item.h) {
+          if (!curr.next.has(ch)) curr.next.set(ch, this._createTrieNode());
+          curr = curr.next.get(ch);
+        }
+        if (!curr.val) {
+          curr.val = item.p;
+          curr.src = item.h;
+        }
       }
 
       // Priority 2: TWCD 經典庫補充 (TWCD Fallback: Fills entries not present in Moedict)
