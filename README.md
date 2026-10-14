@@ -3,6 +3,7 @@
 > **TWCD (Taiwanese Word Conversion Database) 現代化逆向重構旗艦版**  
 > 純前端 • 100% 離線運行 • 免裝 Java • 毫秒級極速轉換 • 支援教育部 Ext-B 擴充漢字
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-success?logo=github)](https://sinliongtoo.github.io/twcd-suite/)
 [![Language](https://img.shields.io/badge/Language-JavaScript%20%7C%20HTML5%20%7C%20CSS3-blue)](#)
 [![Data](https://img.shields.io/badge/Dictionary-84%2C000%2B%20Entries-emerald)](#)
 [![Offline](https://img.shields.io/badge/Offline-100%25%20Zero--Dependency-indigo)](#)
@@ -124,8 +125,12 @@
 
 ## 🚀 快速啟動
 
-### 方式 1：直接開啟（最簡便，完全零依賴）
-在檔案總管中雙擊開啟 [`index.html`](file:///c:/Users/tu-hs/OneDrive/%E6%96%87%E4%BB%B6/2022_0308_MASA/2022-0708/Projects_antigravity/REVERSE_eng_translate_offline/index.html)。
+### 方式 0：線上即時使用（最推薦，免安裝免下載）
+直接在瀏覽器開啟官方部署之 GitHub Pages：  
+👉 **[https://sinliongtoo.github.io/twcd-suite/](https://sinliongtoo.github.io/twcd-suite/)**
+
+### 方式 1：直接開啟（100% 離線運行）
+下載專案後，在檔案總管中雙擊開啟 [`index.html`](file:///c:/Users/tu-hs/OneDrive/%E6%96%87%E4%BB%B6/2022_0308_MASA/2022-0708/Projects_antigravity/REVERSE_eng_translate_offline/index.html)。
 
 ### 方式 2：本機伺服器啟動
 雙擊執行 [`start_app.bat`](file:///c:/Users/tu-hs/OneDrive/%E6%96%87%E4%BB%B6/2022_0308_MASA/2022-0708/Projects_antigravity/REVERSE_eng_translate_offline/start_app.bat)，系統將啟動輕量本機服務並自動在預設瀏覽器開啟 `http://localhost:8000`。
