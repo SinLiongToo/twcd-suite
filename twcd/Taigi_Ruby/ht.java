@@ -1,0 +1,840 @@
+/*****************************************
+華台翻譯系統才替換
+*************************************************/
+import java.awt.*;
+import javax.swing.*;
+import java.awt.event.*;
+import java.net.*;
+//想想還有沒有其他的東西要import
+import java.io.*;
+import java.util.*;
+import java.text.DecimalFormat;
+ class cc <T> implements Comparator <T>
+{
+    public int compare(Object o1, Object o2)
+    {
+         return ((lookup_table)o2).code.length() - ((lookup_table)o1).code.length();
+    }
+    public boolean equals(Object obj)
+    {
+        return false;
+    }
+}
+
+class lookup_table
+{
+    //String length;
+    String code;
+    String word;
+}
+public class ht extends JApplet implements ActionListener //名稱改一改
+{
+    Container c;
+    //設定UI元件
+    static JFrame f;
+    JTextArea RB,HB;
+    JLabel RBt,HBt,hpht,rpht,sfilet;
+    JButton bot0,bot1,bot2,bot3,bot4,bot6;
+    JRadioButton clrb,tlrb;
+    ButtonGroup cl_tl_rg = new ButtonGroup();
+    JTextField hph,rph,sfile;
+    JScrollPane jscpr,jscph;
+    JPanel jp1,jp2,jp3,jp4;
+    String BUF;
+    lookup_table spec[];
+    lookup_table phase[];
+    lookup_table notran[];
+    JFrame wait_frame=new JFrame("處理中請稍待");
+    JLabel wait_lab=new JLabel("處理中請稍待！");
+    int maxscnt=10000;//最多一萬個專有名詞
+    int maxnocnt=1000;//最多一千個強迫不轉
+    int maxphcnt=60000;//最多6萬個片語
+    static int applet=1;
+    String trantmp;
+    int phcnt,scnt,nocnt;
+    String msgarray[]={"華台翻譯系統","台語","華語","台語片語","華語片語","存檔名稱","教羅","台羅","結束","清除","片語排序","加入不轉"
+                               ,"全部轉換","加入片語"};
+    //設定共用的變數與類別
+    public void init()   //建構元，名稱改一改
+    {
+        c=getContentPane();//取得ContentPane
+	//設定版面設定
+                 try
+        {
+            BufferedReader fr;
+            if (applet==0)
+            {
+                  InputStreamReader read = new InputStreamReader(new FileInputStream("msgctl.txt"),"utf-8");
+                fr=new BufferedReader(read);
+            }
+            else
+            {
+                URL ud1=new URL(getDocumentBase(),"msgctl.txt");
+                fr = new BufferedReader(new InputStreamReader(ud1.openStream(),"utf-8"));
+            }
+            StringTokenizer stk;
+            String getfr;
+            int i=0;
+            while ((getfr = fr.readLine())!=null)//如果檔案沒有讀完，就繼續處理
+            {
+                //getfr = fr.readLine(); //取得一行輸入
+                stk=new StringTokenizer(getfr,"#\n\t"); //取得token
+                msgarray[i++]=stk.nextToken().trim();
+            }//while fr.ready()
+            fr.close(); //close file
+        }
+        catch(Exception e){
+        };
+        c.setLayout(new BoxLayout(c,BoxLayout.Y_AXIS));
+	//初始化UI元件
+        f.setTitle(msgarray[0]+"0.7 unicode 版");//華台翻譯系統
+        jp1=new JPanel();
+        jp2=new JPanel();
+        jp3=new JPanel();
+        jp4=new JPanel();
+        jp1.setLayout(new FlowLayout(FlowLayout.CENTER));//設定為用flowlayout
+        jp2.setLayout(new FlowLayout(FlowLayout.CENTER));//設定為用flowlayout
+        jp3.setLayout(new FlowLayout(FlowLayout.CENTER));//設定為用flowlayout
+        jp4.setLayout(new FlowLayout(FlowLayout.CENTER));//設定為用flowlayout
+        RBt=new JLabel(msgarray[1]);//台語
+        HBt=new JLabel(msgarray[2]);//華語
+        hpht=new JLabel(msgarray[3]);//台語片語
+        rpht=new JLabel(msgarray[4]);//華語片語
+        sfilet=new JLabel(msgarray[5]);//存檔名稱
+        clrb=new JRadioButton(msgarray[6],true);//教羅
+        tlrb=new JRadioButton(msgarray[7]);//台羅
+        cl_tl_rg.add(clrb);
+        cl_tl_rg.add(tlrb);
+        hph=new JTextField(12);
+        rph=new JTextField(15);
+        sfile=new JTextField(10);
+        RB=new JTextArea(18,50);
+        //RB.setFont(new Font("細明體",Font.PLAIN,14));
+        RB.setDefaultLocale(Locale.TRADITIONAL_CHINESE );
+        //RB.setDefaultLocale(Locale.TAIWAN );
+        RB.setLineWrap(true);
+        BUF=new String("");
+        jscpr=new JScrollPane(RB);
+        HB=new JTextArea(8,50);
+        HB.setDefaultLocale(Locale.TRADITIONAL_CHINESE );
+        HB.setLineWrap(true);
+        jscph=new JScrollPane(HB);
+        if (applet==0)
+            bot0=new JButton(msgarray[8]);//結束
+        else
+            bot0=new JButton(msgarray[9]);//清除
+        bot1=new JButton(msgarray[10]);//片語檔排序
+        bot2=new JButton(msgarray[11]);//加入不轉
+        bot3=new JButton(msgarray[12]);//全部轉換
+        bot4=new JButton(msgarray[13]);//加入片語
+	//將UI元件加入ContentPane
+        jp1.add(hpht);
+        jp1.add(hph);
+        jp1.add(rpht);
+        jp1.add(rph);
+        jp1.add(bot4);
+        jp1.add(bot2);
+        jp2.add(HBt);
+        jp2.add(jscph);
+        jp3.add(RBt);
+        jp3.add(jscpr);
+        jp4.add(clrb);//羅馬拼音標準選定
+        jp4.add(tlrb);
+        if (applet==0)
+        {
+            //jp4.add(sfilet);
+            //jp4.add(sfile);
+            //jp4.add(bot1);
+            //jp4.add(bot2);
+        }
+        jp4.add(bot3);
+        jp4.add(bot0);
+        if (applet==0)
+            c.add(jp1);
+        c.add(jp2);c.add(jp3);c.add(jp4);
+        wait_frame.setSize(200,100);
+        wait_frame.setLocation(200,200);
+        wait_frame.getContentPane().add(wait_lab);
+        bot0.addActionListener(this);
+        bot1.addActionListener(this);
+        bot2.addActionListener(this);
+        bot3.addActionListener(this);
+        bot4.addActionListener(this);
+        spec=new lookup_table[maxscnt];
+        phase=new lookup_table[maxphcnt];
+        notran=new lookup_table[maxnocnt];
+        //spec_read("SPEC");
+        ph_read("uht_phrase.txt");
+        no_read("uht_notran.txt");
+	//設定UI元件與滑鼠的事件觸發傾聽者
+	//setSize(640,480);//設定size，顯示出去
+	//show();
+    }
+    //片語讀檔
+    private void ph_read(String fname)
+    {
+        StringTokenizer stk;
+        String getfr,word,code,id;
+        String RS;
+        phcnt=0;
+        BufferedReader fr;
+        FileReader ffr;
+        try
+        {
+            if (applet==0)
+            {
+                InputStreamReader read = new InputStreamReader(new FileInputStream(fname),"utf-8");
+                fr=new BufferedReader(read);
+                //System.out.println(ffr.getEncoding());
+            }
+            else
+            {
+                URL ud1=new URL(getDocumentBase(),fname);
+                fr = new BufferedReader(new InputStreamReader(ud1.openStream(),"utf-8"));
+            }
+            
+            while ((getfr = fr.readLine())!=null)//如果檔案沒有讀完，就繼續處理
+            {
+                //getfr = fr.readLine(); //取得一行輸入
+                if (getfr.trim().length()==0) continue; //跳過空白
+                stk=new StringTokenizer(getfr," \n\t"); //取得token
+                id=stk.nextToken();
+                int i=getfr.lastIndexOf(' ');
+                code=getfr.substring(i+1).trim();
+                getfr=getfr.substring(0,i);
+                word=getfr.substring(id.length()+1).trim();
+                //word=stk.nextToken();
+                phase[phcnt]=new lookup_table();
+                phase[phcnt].word=word;
+                phase[phcnt].word=word.replace('%',' ');
+                //ph_word[phcnt]=word;
+                //code=getfr.substring(id.length()+word.length()+2);
+                //code=code.trim();
+                //ph_code[phcnt]=code;
+                phase[phcnt].code=code;
+                phcnt=phcnt+1;
+                if (phcnt>=maxphcnt)
+                    System.out.println("太多片語了，請改 maxphcnt");
+                //System.out.println("id"+id+"word="+word+"||code="+code+"||");
+            }//while fr.ready()
+            fr.close(); //close file
+        }
+        catch(Exception e){
+            System.out.println("ph_readfname="+fname+"開啟error!"+e.toString());
+            HB.setText("ph_readfname="+fname+"開啟error!");
+        };
+       
+    }
+     //強迫不轉讀檔
+    private void no_read(String fname)
+    {
+        String getfr,word,code;
+        String RS;
+        int id;
+        nocnt=0;
+        BufferedReader fr=null;
+        try
+        {
+            if (applet==0)
+            {
+                  InputStreamReader read = new InputStreamReader(new FileInputStream(fname),"utf-8");
+                  fr=new BufferedReader(read);
+            }
+            else
+            {
+                URL ud1=new URL(getDocumentBase(),fname);
+                fr = new BufferedReader(new InputStreamReader(ud1.openStream(),"utf-8"));
+            }
+            while ((getfr = fr.readLine())!=null)//如果檔案沒有讀完，就繼續處理
+            {
+                code=getfr.trim();
+                word="";
+                for (id=0;id<code.length();id++)
+                    word=word+"=";
+                notran[nocnt]=new lookup_table();
+                notran[nocnt].word=word;
+                notran[nocnt].code=code;
+                nocnt=nocnt+1;
+                if (nocnt>=maxnocnt)
+                    System.out.println("太多強迫不轉詞了，請改 maxnocnt");
+                //System.out.println("word="+word+"||\ncode="+code+"||");
+            }//while fr.ready()
+            fr.close(); //close file
+        }
+        catch(Exception e){
+            System.out.println("noreadfname="+fname+"開啟error!"+e.toString());
+            HB.setText("noreadfname="+fname+"開啟error!");
+        };
+       
+    }
+    public void paint(Graphics g)  
+    {
+	    super.paint(g);//畫出元件
+	    //額外的畫圖程式寫在這裡
+    }
+    //UI元件事件處理類別寫在這裡
+    public void actionPerformed(ActionEvent e) //按鈕事件的處理方法
+    { 
+        if (e.getSource()==bot0)
+        {
+            HB.setText("");
+            RB.setText("");
+            if (applet==0)
+                System.exit(0);
+        }
+        else if (e.getSource()==bot1) //片語轉換
+        {
+            //spec_tran("SPEC");
+              ph_read("uht_phrase.txt");
+              cp_ph("uht_phrase.txt",phase);
+        }
+        else if (e.getSource()==bot2) //加入不轉
+        {
+            //ph_tran("ht_phrase.txt","HRS");
+            add_no("uht_notran.txt");
+            no_read("uht_notran.txt");
+        }
+        else if (e.getSource()==bot3) //全部轉換
+        {
+            //spec_tran("SPEC");
+           //BUF=RB.getText();
+           wait_frame.setVisible(true);
+            wait_lab.setText("處理中請稍候！");
+            wait_frame.paint(wait_frame.getGraphics());
+            ph_tran("uht_phrase.txt","HRS");
+             //教羅與台羅
+            if (tlrb.isSelected())
+            {
+                RB.setText(cl2tl(RB.getText()));
+            }
+            BUF=new String("");
+            if (sfile.getText().trim().length()>0)
+            {
+                try
+                {
+                    BufferedWriter fp= new BufferedWriter(new FileWriter(sfile.getText().trim()));
+                    fp.write(RB.getText());
+                    fp.close();
+                }
+                catch(Exception e1)
+                {
+                    System.out.println(e1.toString()+"bot3fname="+sfile.getText().trim()+"開啟error!");
+                };
+            }
+            wait_frame.setVisible(false);
+        }
+        else if (e.getSource()==bot4) //加入片語
+        {
+            //System.out.println("phcnt"+phcnt);
+            add_tran2("uht_phrase.txt",1);
+            //System.out.println("1phcnt"+phcnt);
+            ph_read("uht_phrase.txt");
+            //System.out.println("2phcnt"+phcnt);
+        }
+    }
+    //轉換片語或專有名詞進入記憶體中
+    private void cp_ph(String fname,lookup_table lookup[])
+    {
+        DecimalFormat df = new DecimalFormat("000");//設定格式
+        StringTokenizer stk;
+        int id,flag,flag1;
+        int i,cnt=0;
+        byte[] len;
+        Comparator <lookup_table> scc=new cc<lookup_table>();
+        File f1=new File(fname+".bak");
+        File f2=new File(fname);
+        f2.renameTo(f1);
+        //sort
+        Arrays.sort(lookup,0,scnt,scc);
+        try
+        {
+            OutputStreamWriter fp = new OutputStreamWriter(new FileOutputStream(fname),"utf-8"); 
+            //看看輸入什麼檔案，就用哪一個計數器
+            if (fname.equals("uht_phrase.txt"))
+                cnt=phcnt;
+            else  if (fname.equals("SPEC"))
+                cnt=scnt;
+            for (i=0;i<cnt;i=i+1)
+            {
+                    //RS=replace(RS,s_code[i],s_word[i]);
+                    len=lookup[i].code.getBytes();
+                    fp.write(df.format(len.length)+" "+lookup[i].word+" "+lookup[i].code+"\r\n");
+                   // fp.newLine();
+            }
+            fp.close(); //close file
+        }
+        catch(Exception e){
+            System.out.println(e.toString()+"fname="+fname+"改寫error!");
+        };
+
+        hph.setText("");
+        rph.setText("");
+        f1.delete();//砍掉bak
+    }
+    //加入片語或專有名詞
+    private void add_tran2(String fname,int mode)
+    {//mode=0 保持大小寫，mode=1 轉換成小寫
+        DecimalFormat df = new DecimalFormat("000");//設定格式
+        StringTokenizer stk;
+        String word,code,getfr,now_word,now_code,now_id;
+        int id,flag,flag1;
+        if (tlrb.isSelected())
+        {
+                word=tl2cl(hph.getText().trim());
+                code=tl2cl(rph.getText().trim());
+        }
+        else
+        {
+            word=hph.getText().trim();
+            code=rph.getText().trim();
+        }
+        word=word.replace(' ','%');//把空白換成 %
+        if (mode==1)
+        {
+            code=code.replace('A','a');
+            code=code.replace('B','b');
+            code=code.replace('C','c');
+            code=code.replace('D','d');
+            code=code.replace('E','e');
+            code=code.replace('F','f');
+            code=code.replace('G','g');
+            code=code.replace('H','h');
+            code=code.replace('I','i');
+            code=code.replace('J','j');
+            code=code.replace('K','k');
+            code=code.replace('L','l');
+            code=code.replace('M','m');
+            code=code.replace('O','o');
+            code=code.replace('P','p');
+            code=code.replace('Q','q');
+            code=code.replace('R','r');
+            code=code.replace('S','s');
+            code=code.replace('T','t');
+            code=code.replace('U','u');
+            code=code.replace('V','v');
+            code=code.replace('W','w');
+            code=code.replace('X','x');
+            code=code.replace('Y','y');
+            code=code.replace('Z','z');
+        }
+        if (word.length()==0||code.length()==0) return;
+        if (word.equals(code)) return;//word 換成 code一樣會出事
+        byte[] len=code.getBytes();
+        File f1=new File(fname+".bak");
+        File f2=new File(fname);
+        f2.renameTo(f1);
+        
+        try
+        {
+            //BufferedWriter fp= new BufferedWriter(new FileWriter(fname),"utf-8");
+            OutputStreamWriter fp = new OutputStreamWriter(new FileOutputStream(fname),"utf-8"); 
+            BufferedReader fr= new BufferedReader(new InputStreamReader(new FileInputStream(f1),"utf-8"));
+           // BufferedReader fr= new BufferedReader(new FileReader(f1),"utf-8");
+            flag=0;
+            while (fr.ready())//如果檔案沒有讀完，就繼續處理
+            {
+                flag1=1;
+                getfr = fr.readLine(); //取得一行輸入
+                if (getfr.trim().length()==0) continue; //跳過空白
+                stk=new StringTokenizer(getfr," \n\t"); //取得token
+                now_id=stk.nextToken();
+                id=Integer.parseInt(now_id.substring(1));
+                now_word=stk.nextToken();
+                now_code=getfr.substring(now_id.length()+now_word.length()+2);
+                now_code=now_code.trim();
+                //判斷重複
+                if (now_code.equals(code) && now_word.equals(word))
+                {
+                     String message="資料庫已經有了!";
+                     int messageType=JOptionPane.QUESTION_MESSAGE;
+                     int optionType=	JOptionPane.YES_NO_OPTION ;
+                     String[] option={"確定","取消"};
+                     int YN=JOptionPane.showOptionDialog(this,message,
+                     "資料庫重複",optionType,messageType,null,option,
+                     option[0]);
+                     flag=1;
+                }
+                else if (now_code.equals(code) && !now_word.equals(word))
+                {
+                     String message="華語片語重複，是否覆蓋？";
+                     int messageType=JOptionPane.QUESTION_MESSAGE;
+                     int optionType=	JOptionPane.YES_NO_OPTION ;
+                     String[] option={"確定","取消"};
+                     int YN=JOptionPane.showOptionDialog(this,message,
+                     "華語片語重複",optionType,messageType,null,option,
+                     option[0]);
+                     if (YN==JOptionPane.YES_OPTION)
+                         flag1=0;
+                     else flag=1;
+                }
+                else if (!now_code.equals(code) && now_word.equals(word))
+                {
+                     String message="台語片語重複，是否增加？";
+                     int messageType=JOptionPane.QUESTION_MESSAGE;
+                     int optionType=	JOptionPane.YES_NO_OPTION ;
+                     String[] option={"確定","取消"};
+                     int YN=JOptionPane.showOptionDialog(this,message,
+                     "台語片語重複",optionType,messageType,null,option,
+                     option[0]);
+                     if (YN==JOptionPane.YES_OPTION)
+                         flag=0;
+                     else flag=1;
+                }
+                if (len.length>id && flag==0)
+                {
+                    fp.write(df.format(len.length)+" "+word+" "+code+"\r\n");
+                    //fp.newLine();
+                    flag=1;
+                }
+                if (flag1==1)
+                {
+                    fp.write(getfr.trim()+"\r\n");
+                    //fp.newLine();
+                }
+                else flag1=1;
+                
+            }//while fr.ready()
+            if (flag==0)//沒換到
+            {
+                fp.write(df.format(len.length)+" "+word+" "+code+"\r\n");
+                //fp.newLine();
+            }
+            fr.close(); //close file
+            fp.close(); //close file
+        }
+        catch(Exception e){
+            System.out.println(e.toString()+"add_tran2fname="+fname+"開啟error!");
+        };
+        hph.setText("");
+        rph.setText("");
+        f1.delete();//砍掉bak
+    }
+    private void add_no(String fname)//加入強制不轉
+    {
+        DecimalFormat df = new DecimalFormat("000");//設定格式
+        StringTokenizer stk;
+        String word,code,getfr,now_word,now_code,now_id;
+        int id,flag,flag1;
+        if (tlrb.isSelected())
+        {
+                word=tl2cl(hph.getText().trim());
+                code=tl2cl(rph.getText().trim());
+        }
+        else
+        {
+            word=hph.getText().trim();
+            code=rph.getText().trim();
+        }
+        if (code.length()==0) return;
+        byte[] len=code.getBytes();
+        File f1=new File(fname+".bak");
+        File f2=new File(fname);
+        f2.renameTo(f1);
+        
+        try
+        {
+            OutputStreamWriter fp = new OutputStreamWriter(new FileOutputStream(fname),"utf-8"); 
+            //BufferedWriter fp= new BufferedWriter(new FileWriter(fname),"utf-8");
+            //BufferedReader fr= new BufferedReader(new FileReader(f1),"utf-8");
+            BufferedReader fr= new BufferedReader(new InputStreamReader(new FileInputStream(f1),"utf-8"));
+            flag=0;
+            while (fr.ready())//如果檔案沒有讀完，就繼續處理
+            {
+                flag1=1;
+                now_code = fr.readLine(); //取得一行輸入
+                if (now_code.trim().length()==0) continue; //跳過空白
+
+                now_code=now_code.trim();
+                //判斷重複
+                if (now_code.equals(code) )
+                {
+                     String message="不轉資料庫已經有了!";
+                     int messageType=JOptionPane.QUESTION_MESSAGE;
+                     int optionType=	JOptionPane.YES_NO_OPTION ;
+                     String[] option={"確定","取消"};
+                     int YN=JOptionPane.showOptionDialog(this,message,
+                     "不轉資料庫重複",optionType,messageType,null,option,
+                     option[0]);
+                     flag=1;
+                }
+                
+                if (flag==0)
+                {
+                    fp.write(code+"\r\n");
+                    //fp.newLine();
+                    flag=1;
+                }
+                if (flag1==1)
+                {
+                    fp.write(now_code.trim()+"\r\n");
+                    //fp.newLine();
+                }
+                else flag1=1;
+                
+            }//while fr.ready()
+            if (flag==0)//沒換到
+            {
+                fp.write(code+"\r\n");
+                //fp.newLine();
+            }
+            fr.close(); //close file
+            fp.close(); //close file
+        }
+        catch(Exception e){
+            System.out.println(e.toString()+"add_no fname="+fname+"開啟error!");
+        };
+        hph.setText("");
+        rph.setText("");
+        f1.delete();//砍掉bak
+    }
+    //片語轉換
+    private void ph_tran(String fname,String fname1)
+    {
+        String getfr,word,code,id;
+        String RS;
+        int i,pt;
+        if (BUF.length()==0)
+            RS=HB.getText();
+        else RS=BUF;
+        /********************
+        if (RB.getText().length()==0)
+            RS=HB.getText();
+        else
+            RS=RB.getText();
+        ***********************/
+        String[] stok = RS.split("\n");
+        RS="";
+        for (int ii=0;ii<stok.length;ii++)
+        {
+            wait_lab.setText("一般片語替換，進度 "+ii+"/"+stok.length);
+            wait_frame.paint(wait_frame.getGraphics());
+            //不轉
+            trantmp=stok[ii];
+            for (i=0;i<nocnt;i=i+1)
+            {
+                trantmp=nreplace(trantmp,notran[i].code,notran[i].word);
+            }
+                 for (i=0;i<phcnt;i++)
+                {
+                        stok[ii]=replace(stok[ii],phase[i].code,phase[i].word);
+                }
+                //處理大寫啦！
+                /*********
+                pt=0;
+                while (pt+1<stok[ii].length() && stok[ii].charAt(pt)==' ') pt=pt+1;
+                if (pt+1<stok[ii].length())
+                {
+                    stok[ii]=stok[ii].substring(0,pt)+stok[ii].substring(pt,pt+1).toUpperCase()
+                         +stok[ii].substring(pt+1);
+                }
+                *************/
+            RS=RS+stok[ii]+"\n";
+        }
+        //RS=fupper(RS);//句點轉大寫
+        RB.setText(RS);
+        RB.setCaretPosition(0);
+    }
+    //檢查到底可不可以替換 2005.05.22
+    private int is_happen(String str, String inp)
+    {
+        int i,pt;
+        i=0;
+        pt=0;
+        while (true)
+        {
+            pt=str.indexOf(inp,i);
+            if (pt<=0) return pt; //表示開頭就找到了或者沒找到，直接回傳
+            //表示開頭沒找到，要檢驗是不是完整的字
+            //if (!Character.isLetterOrDigit(str.charAt(pt-1)))//前面不是字母或數字
+            if (!Character.isUpperCase(str.charAt(pt-1))&&
+                !Character.isLowerCase(str.charAt(pt-1))&&
+                !Character.isDigit(str.charAt(pt-1))
+                )//前面不是字母或數字
+            {
+                if (pt+inp.length()==str.length()) //最後一個，回傳
+                    return pt;
+                //if (!Character.isLetterOrDigit(str.charAt(pt+inp.length()))) //inp後面不是字母或數字啦！不處理中文
+                if (!Character.isUpperCase(str.charAt(pt+inp.length()))&&
+                    !Character.isLowerCase(str.charAt(pt+inp.length()))&&
+                    !Character.isDigit(str.charAt(pt+inp.length()))
+                     )
+                    return pt;
+            }
+            i=pt+inp.length();
+        }
+    }
+    private String fupper(String str)//句點後面換大寫
+    {int pt,i;
+        String out="";
+        pt=str.indexOf('。');
+        while (pt+1<str.length() && pt>=0)
+        {
+            if (str.charAt(pt+1)==' ' && pt+2< str.length())
+            {
+                out=out+str.substring(0,pt+2)+str.substring(pt+2,pt+3).toUpperCase();
+                str=str.substring(pt+3);
+            }
+            else
+            {
+                out=out+str.substring(0,pt+1)+str.substring(pt+1,pt+2).toUpperCase();
+                str=str.substring(pt+2);
+            }
+             pt=str.indexOf('。');
+        }
+        out=out+str;
+        return out;
+    }
+        //台羅轉教羅
+    private String tl2cl(String str)
+    {
+        String txt=str;
+        txt=txt.replaceAll("ts","ch");
+        txt=txt.replaceAll("oo","ou");
+        txt=txt.replaceAll("ua","oa");
+        txt=txt.replaceAll("ue","oe");
+        txt=txt.replaceAll("ing","eng");
+        txt=txt.replaceAll("ik","ek");
+        txt=txt.replaceAll("Ts","Ch");
+        txt=txt.replaceAll("Oo","Ou");
+        txt=txt.replaceAll("Ua","Oa");
+        txt=txt.replaceAll("Ue","Oe");
+        txt=txt.replaceAll("Ing","Eng");
+        txt=txt.replaceAll("Ik","Ek");
+        txt=txt.replaceAll("nn","N");
+        return txt;
+    }
+    //教羅轉台羅
+    private String cl2tl(String str)
+    {
+        String txt=str;
+        txt=txt.replaceAll("ch","ts");
+        txt=txt.replaceAll("ou","oo");
+        txt=txt.replaceAll("oa","ua");
+        txt=txt.replaceAll("oe","ue");
+        txt=txt.replaceAll("eng","ing");
+        txt=txt.replaceAll("ek","ik");
+        txt=txt.replaceAll("Ch","Ts");
+        txt=txt.replaceAll("Ou","Oo");
+        txt=txt.replaceAll("Oa","Ua");
+        txt=txt.replaceAll("Oe","Ue");
+        txt=txt.replaceAll("Eng","Ing");
+        txt=txt.replaceAll("Ek","Ik");
+        txt=txt.replaceAll("N","nn");
+        return txt;
+    }
+    //字串替換 2005.05.22 改成全部match才替換
+    private String replace(String str,String inp,String out)
+    {
+        int i,spc,id;
+        String ans,outans,outtmp,oword;
+        ans=str;
+        outans="";
+        outtmp="";
+        oword="";
+        for (id=0;id<out.length();id++)
+                    oword=oword+"=";
+        while ((i=trantmp.indexOf(inp))>=0)//替換每一個
+        {
+            //System.out.println("str--"+str+" tmp--"+trantmp);
+            if ((Character.isUpperCase(ans.charAt(0))||
+                Character.isLowerCase(ans.charAt(0))||
+                Character.isDigit(ans.charAt(0)))&&
+                (
+                   outans.length()>0 && (Character.isUpperCase(outans.charAt(outans.length()-1))||
+                   Character.isLowerCase(outans.charAt(outans.length()-1))||
+                   Character.isDigit(outans.charAt(outans.length()-1)))
+                )
+                )
+                {
+                    outans=outans+" "+ans.substring(0,i);
+                    outtmp=outtmp+" "+trantmp.substring(0,i);
+                }
+            else 
+            {
+                outans=outans+ans.substring(0,i);
+                outtmp=outtmp+trantmp.substring(0,i);
+            }
+
+            if ((Character.isUpperCase(out.charAt(0))||
+                Character.isLowerCase(out.charAt(0))||
+                Character.isDigit(out.charAt(0)))&&
+                (
+                   outans.length()>0 &&
+                   (Character.isUpperCase(outans.charAt(outans.length()-1))||
+                   Character.isLowerCase(outans.charAt(outans.length()-1))||
+                   Character.isDigit(outans.charAt(outans.length()-1)))
+                )
+                )
+                {
+                    outans=outans+" "+out;
+                    outtmp=outtmp+" "+oword;
+                }
+            else 
+            {
+                outans=outans+out;
+                outtmp=outtmp+oword;
+            }
+            
+            //outans=outans+ans.substring(0,i)+out;
+            ans=ans.substring(i+inp.length());
+            trantmp=trantmp.substring(i+inp.length());
+            //ans=ans.substring(0,i)+out+ans.substring(i+inp.length());
+            //System.out.println("after inp=="+inp+"  anstmp="+anstmp+"  ans="+ans+"  outans="+outans);
+        }//while
+        //最後補一段
+        if ((ans.length()>0&&(Character.isUpperCase(ans.charAt(0))||
+                Character.isLowerCase(ans.charAt(0))||
+                Character.isDigit(ans.charAt(0))))&&
+                (
+                   outans.length()>0 && (Character.isUpperCase(outans.charAt(outans.length()-1))||
+                   Character.isLowerCase(outans.charAt(outans.length()-1))||
+                   Character.isDigit(outans.charAt(outans.length()-1)))
+                )
+                )
+                {
+                    outans=outans+" "+ans;
+                    outtmp=outtmp+" "+trantmp;
+                }
+            else 
+            {
+                outans=outans+ans;
+                outtmp=outtmp+trantmp;
+                
+            }
+            
+        //outans=outans+ans;
+        trantmp=outtmp;
+        return outans;
+    }
+    private String nreplace(String str,String inp,String out)
+    {
+        int i,spc;
+        String ans,outans;
+        ans=str;
+        outans="";
+        //while ((i=ans.indexOf(inp))>=0)
+        while ((i=ans.indexOf(inp))>=0)
+        {
+            outans=outans+ans.substring(0,i)+out;
+            ans=ans.substring(i+inp.length());
+        }
+        outans=outans+ans;
+        return outans;
+    }
+
+    //滑鼠事件處理類別寫在這裡
+  /***主程式***/
+    public static void main(String args[]) //程式起點
+    {
+        ht app=new ht(); //名稱改一改，啟動UI元件
+         f = new JFrame("華台翻譯系統 0.7 unicode版");
+        // To close the application:
+        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        f.getContentPane().add(app);//把Applet 加進去
+        f.setSize(700,640);
+        applet=0;
+        app.init();//呼叫init()
+        app.start();//呼叫start()
+        f.setVisible(true);
+    }
+}

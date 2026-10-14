@@ -1,0 +1,55 @@
+<?php
+/******²£¥Í¹Ï§Î¦r«¬ªºµ{¦¡ ******/
+function mfont($message)
+{
+  $BASEDIR='mfont/'; //¦r«¬²£¥Í¥Ø¿ý
+  $fs=16;    //¦r«¬¤j¤p
+  $fontsize=(int) $_REQUEST['fsize'];
+  if ($fontsize<=6|| $fontsize>100) $fontsize=$fs;
+  //$fontfile="Bsthebre.ttf";  //¦r«¬ÀÉ®×
+  //$fontfile="/usr/local/share/fonts/cobsg.ttf";  //¦r«¬ÀÉ®×
+  $fontfile='AsseenonTV.ttf';  //¦r«¬ÀÉ®×
+  if(strlen(trim($message))==0) 
+  return $message;                                              
+  $restxt='';
+  $TEXTL[0]= $message;
+  for ($j=0;$j<1;$j++)
+  {
+      if(strlen(trim($TEXTL[$j]))==0) continue;
+     $TEXTA[0] =$TEXTL[$j];
+     $cta=count($TEXTA);
+     for ($i=0;$i<1;$i++) 
+     {
+	if(strlen(trim($TEXTA[$i]))==0) continue;
+	//$TEXTA[$i]=str_replace( 'iÌ', chr(1).chr(0x31).'Ì',$TEXTA[$i]);//i8
+	//hex 0131= Dec 305
+	$TEXTA[$i]=str_replace( 'iÌ', '&#305;Ì',$TEXTA[$i]);//i8
+        //echo $TEXTA[$i].'   ';
+        $sfile=bin2hex($TEXTA[$i]);
+        $spdir=substr($sfile,0,2);
+        $filename=$BASEDIR.$spdir.'/'.$sfile.'.png';
+       /***** Process PNG GRAPH *****/
+     if (!is_dir("{$BASEDIR}{$spdir}")) mkdir("{$BASEDIR}{$spdir}",0755);
+     if (!file_exists($filename)) //always redo
+      {
+        $FSIZE=imagettfbbox($fontsize,0,$fontfile,$TEXTA[$i]);
+	$GX=$FSIZE[2]-$FSIZE[0]+2;
+        $GY=$FSIZE[3]-$FSIZE[5];
+	$YOFFSET=$GY/2;
+	$GY=$GY+$YOFFSET;
+        $pif1=ImageCreate($GX,$GY);
+      	$BGCOLOR=ImageColorAllocate($pif1,255,255,255);//­I´º
+	$trans=imagecolortransparent($pif1,$BGCOLOR);
+      	//$text_col=ImageColorAllocate($pif1,0,0,0x90);//¤å¦rÃC¦â
+      	$text_col=ImageColorAllocate($pif1,0,0,0x00);//¤å¦rÃC¦â
+      	imagefill($pif1,0,0,$BGCOLOR); //³]©w­I´ºÃC¦â
+      	ImageTTFText($pif1,$fontsize,0,0,$GY-$YOFFSET,$text_col,$fontfile,$TEXTA[$i]);
+      	ImagePNG($pif1,$filename);
+      	ImageDestroy($pif1);
+      }
+      $restxt=$restxt."<img align=\"middle\" src=\"$filename\" alt=\"orig\" />";
+   } //for i
+  } //for j
+   return $restxt;
+}
+?>

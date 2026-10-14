@@ -1,0 +1,16 @@
+使用說明：
+
+請先下載java JRE以便執行程式
+下載點：
+http://java.sun.com/j2se/1.5.0/download.jsp打開dos視窗，執行 java tranhr 即可執行
+系統中包含幾個檔案：
+ht.java         程式原始檔
+*.class         程式執行檔
+*.bat           程式執行的批次檔
+ht_phrase.txt       片語對照檔 （文字檔，可自己修改）
+ht_notran.txt         不應轉換對照檔
+
+執行時直接點選 ht.bat 就可以執行轉換程式
+
+如果需要加入片語，請由上面兩個小文字區輸入
+中文與對應的拼音，然後按鈕即可。

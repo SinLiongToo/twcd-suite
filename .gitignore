@@ -1,0 +1,15 @@
+# Old 32-bit runtime binaries (obsoleted by pure JS next-gen implementation)
+twcd/jre6/
+twcd/CTS/php/
+*.class
+*.exe
+*.dll
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Operating system artifacts
+.DS_Store
+Thumbs.db
+desktop.ini
