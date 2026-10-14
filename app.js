@@ -818,11 +818,11 @@ document.addEventListener('DOMContentLoaded', function () {
                       </div>
                     </div>
                     <div class="flex items-center space-x-2 shrink-0">
-                      <a href="https://sinliongtoo.github.io/hok_kok_ebook/#dict" target="_blank" rel="noopener noreferrer" class="px-2 py-1 text-xs text-sky-600 hover:text-sky-700 dark:text-sky-400 dark:hover:text-sky-300 font-medium transition" title="前往《護國 評論集》線上詞典">
-                        護國詞典 ↗
+                      <a href="https://sinliongtoo.github.io/hok_kok_ebook/" target="_blank" rel="noopener noreferrer" class="px-2 py-1 text-xs text-sky-600 hover:text-sky-700 dark:text-sky-400 dark:hover:text-sky-300 font-medium transition" title="前往《護國 評論集》線上電子書與詞典">
+                        護國電子書 ↗
                       </a>
-                      <a href="https://sinliongtoo.github.io/hok_kok_ebook/" target="_blank" rel="noopener noreferrer" class="px-2 py-1 text-xs text-slate-500 hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-300 font-medium transition" title="閱讀《護國 評論集》全文">
-                        電子書 ↗
+                      <a href="https://readmoo.com/book/210504058000101" target="_blank" rel="noopener noreferrer" class="px-2 py-1 text-xs text-amber-600 hover:text-amber-700 dark:text-amber-400 font-medium transition" title="前往 Readmoo 讀墨購買電子書">
+                        讀墨 ↗
                       </a>
                     </div>
                   </div>

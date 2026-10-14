@@ -115,6 +115,7 @@
       if (!keyword) return { chhitjia: [], laigoakho: [], hokkok: [] };
       const q = keyword.trim().toLowerCase();
       if (!q) return { chhitjia: [], laigoakho: [], hokkok: [] };
+      const qAlt = q.includes('台') ? q.replace(/台/g, '臺') : (q.includes('臺') ? q.replace(/臺/g, '台') : null);
       const uDicts = this.getUserDicts();
 
       // 1. Chhitjia (杜信龍《七字孽》)
@@ -122,7 +123,9 @@
       for (const [word, info] of Object.entries(uDicts.chhitjia || {})) {
         const wLower = word.toLowerCase();
         const rLower = (info.r || '').toLowerCase();
-        if (wLower === q || wLower.startsWith(q) || wLower.includes(q) || rLower.includes(q)) {
+        const matchW = wLower === q || wLower.startsWith(q) || wLower.includes(q) || (qAlt && (wLower.includes(qAlt) || wLower === qAlt));
+        const matchR = rLower.includes(q);
+        if (matchW || matchR) {
           chhitjiaMatches.push({ word, ...info });
           if (chhitjiaMatches.length >= maxCount) break;
         }
@@ -133,7 +136,7 @@
       const list = uDicts.laigoakho || [];
       for (let i = 0; i < list.length; i++) {
         const item = list[i];
-        const hMatch = item.h && item.h.toLowerCase().includes(q);
+        const hMatch = item.h && (item.h.toLowerCase().includes(q) || (qAlt && item.h.toLowerCase().includes(qAlt)));
         const pMatch = item.p && item.p.toLowerCase().includes(q);
         const eMatch = item.e && item.e.toLowerCase().includes(q);
         if (hMatch || pMatch || eMatch) {
@@ -143,28 +146,26 @@
       }
 
       // 3. Hokkok (杜信龍《護國 評論集》)
+      // 僅對應詞目 (word) 與標音 (r)，避免例句/文章標題中偶現字詞造成詞目不對應的錯誤命中
       const hokkokExact = [];
       const hokkokStarts = [];
       const hokkokContains = [];
       const hokkokSound = [];
-      const hokkokEx = [];
 
       for (const [word, info] of Object.entries(uDicts.hokkok || {})) {
         const wLower = word.toLowerCase();
         const rLower = (info.r || '').toLowerCase();
-        if (wLower === q) {
+        if (wLower === q || (qAlt && wLower === qAlt)) {
           hokkokExact.push({ word, ...info });
-        } else if (wLower.startsWith(q)) {
+        } else if (wLower.startsWith(q) || (qAlt && wLower.startsWith(qAlt))) {
           hokkokStarts.push({ word, ...info });
-        } else if (wLower.includes(q)) {
+        } else if (wLower.includes(q) || (qAlt && wLower.includes(qAlt))) {
           hokkokContains.push({ word, ...info });
         } else if (rLower.includes(q)) {
           hokkokSound.push({ word, ...info });
-        } else if (info.e && info.e.some(ex => (ex.h && ex.h.toLowerCase().includes(q)) || (ex.t && ex.t.toLowerCase().includes(q)))) {
-          hokkokEx.push({ word, ...info });
         }
       }
-      const hokkokMatches = hokkokExact.concat(hokkokStarts, hokkokContains, hokkokSound, hokkokEx).slice(0, maxCount);
+      const hokkokMatches = hokkokExact.concat(hokkokStarts, hokkokContains, hokkokSound).slice(0, maxCount);
 
       return { chhitjia: chhitjiaMatches, laigoakho: laigoakhoMatches, hokkok: hokkokMatches };
     },
