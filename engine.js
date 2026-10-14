@@ -313,11 +313,6 @@
             out += chars.slice(i, i + longestMatchLen).join('');
           } else {
             let t = longestMatch.val;
-            if (options.style === 'tailo') {
-              t = this.cl2tl(t);
-            } else if (options.style === 'poj') {
-              t = this.tl2cl(t);
-            }
             if (options.diffHighlight) {
               out += `<mark class="twcd-match" data-src="${longestMatch.src}" title="華語：${longestMatch.src}">${t}</mark>`;
             } else {
@@ -331,6 +326,16 @@
           out += chars[i];
           i++;
         }
+      }
+
+      // If style is tailo or poj (全羅), convert the resulting Taiwanese text to full Romanization & English punctuation!
+      if (options.style === 'tailo' || options.style === 'poj') {
+        const clRes = this.hl2cl(out, {
+          outputStyle: options.style,
+          useFallback: true,
+          englishPunctuation: true
+        });
+        out = clRes.result;
       }
 
       const elapsed = performance.now() - startTime;
@@ -406,7 +411,8 @@
       const startTime = performance.now();
       options = Object.assign({
         outputStyle: 'tailo',  // 'tailo' or 'poj'
-        useFallback: true
+        useFallback: true,
+        englishPunctuation: true
       }, options);
 
       const trie = this.getHlClTrie();
@@ -418,6 +424,17 @@
       const hanCharRegex = /[\u4e00-\u9fff\u3400-\u4dbf\u{20000}-\u{2ebe0}]/u;
 
       while (i < chars.length) {
+        // Skip and preserve HTML tags if present (e.g. diffHighlight marks)
+        if (chars[i] === '<') {
+          const rest = chars.slice(i).join('');
+          const tagMatch = rest.match(/^<[^>]+>/);
+          if (tagMatch) {
+            out += tagMatch[0];
+            i += Array.from(tagMatch[0]).length;
+            continue;
+          }
+        }
+
         let curr = trie;
         let longestMatch = null;
         let longestMatchLen = 0;
@@ -456,9 +473,13 @@
         }
       }
 
-      // Post-processing: capital letters after sentence punctuation and clean spacing
+      // Post-processing: English half-width punctuation, capitalization, and clean spacing
+      if (options.englishPunctuation !== false) {
+        out = this.toEnglishPunctuation(out);
+      } else {
+        out = out.replace(/\s+([，。！？,.!?:;])/g, '$1');
+      }
       out = this.capitalizeSentences(out);
-      out = out.replace(/\s+([，。！？,.!?:;])/g, '$1');
       out = out.replace(/[ \t]{2,}/g, ' ').trim();
 
       const elapsed = performance.now() - startTime;
@@ -789,9 +810,84 @@
         .replace(/nn(?=[^a-zA-Z]|$)/g, 'ⁿ');
     },
 
+    toEnglishPunctuation: function (str) {
+      if (!str) return '';
+      let s = str;
+
+      // Protect HTML tags (e.g. <mark ...>...</mark>)
+      const tags = [];
+      s = s.replace(/<[^>]+>/g, (tag) => {
+        tags.push(tag);
+        return `\uE000${tags.length - 1}\uE000`;
+      });
+
+      // 1. Dash & Ellipsis
+      s = s.replace(/——/g, ' -- ').replace(/—/g, ' -- ');
+      s = s.replace(/……/g, '... ').replace(/…/g, '... ');
+
+      // 2. Standard sentence marks (Full-width to English half-width)
+      s = s.replace(/，/g, ', ');
+      s = s.replace(/、/g, ', ');
+      s = s.replace(/。/g, '. ');
+      s = s.replace(/！/g, '! ');
+      s = s.replace(/？/g, '? ');
+      s = s.replace(/：/g, ': ');
+      s = s.replace(/；/g, '; ');
+      s = s.replace(/～/g, '~');
+
+      // 3. Opening / Closing Quotes & Brackets with placeholders
+      const OQ = '\uE001';  // Open double quote
+      const CQ = '\uE002';  // Close double quote
+      const OSQ = '\uE003'; // Open single quote
+      const CSQ = '\uE004'; // Close single quote
+
+      s = s.replace(/[「“《〈]/g, OQ);
+      s = s.replace(/[」”》〉]/g, CQ);
+      s = s.replace(/[『‘]/g, OSQ);
+      s = s.replace(/[』’]/g, CSQ);
+
+      s = s.replace(/[（]/g, ' (');
+      s = s.replace(/[）]/g, ') ');
+      s = s.replace(/[【［]/g, ' [');
+      s = s.replace(/[】］]/g, '] ');
+
+      // 4. Spacing rules for Western typography:
+      // Remove space BEFORE closing punctuation: , . ! ? : ; ) ]
+      s = s.replace(/\s+([,.\!?:;\]\)])/g, '$1');
+      // Remove space BEFORE closing quote
+      s = s.replace(/\s+([\uE002\uE004])/g, '$1');
+
+      // Remove space AFTER opening brackets / quotes
+      s = s.replace(/([(\[\uE001\uE003])\s+/g, '$1');
+
+      // Ensure space BEFORE opening quote / bracket if preceded by letter/digit/punctuation
+      s = s.replace(/([a-zA-Z0-9\u00C0-\u024F\u1E00-\u1EFF,.\!?:;])([\uE001\uE003(\[])/g, '$1 $2');
+
+      // Ensure space AFTER closing quote / bracket if followed by letter/digit
+      s = s.replace(/([\uE002\uE004)\]])(?=[a-zA-Z0-9\u00C0-\u024F\u1E00-\u1EFF])/g, '$1 ');
+
+      // Ensure space AFTER standard punctuation if followed by letter/digit
+      s = s.replace(/([,.\!?:;])(?=[a-zA-Z0-9\u00C0-\u024F\u1E00-\u1EFF])/g, '$1 ');
+
+      // Replace placeholders with ASCII half-width English quotes
+      s = s.replace(new RegExp(OQ, 'g'), '"');
+      s = s.replace(new RegExp(CQ, 'g'), '"');
+      s = s.replace(new RegExp(OSQ, 'g'), "'");
+      s = s.replace(new RegExp(CSQ, 'g'), "'");
+
+      // Restore protected HTML tags
+      s = s.replace(/\uE000(\d+)\uE000/g, (m, idx) => tags[parseInt(idx, 10)]);
+
+      // Collapse multiple spaces
+      s = s.replace(/[ \t]{2,}/g, ' ').trim();
+      return s;
+    },
+
     capitalizeSentences: function (str) {
       if (!str) return '';
-      return str.replace(/(?:^|[.!?]\s+)([a-z])/g, (m, c) => m.toUpperCase());
+      return str.replace(/(^|[.!?]\s+)(["'(\[]?)(<[^>]+>)?([a-z])/g, (m, punct, quote, tag, char) => {
+        return punct + quote + (tag || '') + char.toUpperCase();
+      });
     },
 
     escapeRegex: function (str) {

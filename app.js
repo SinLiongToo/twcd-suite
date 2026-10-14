@@ -236,6 +236,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const hlclRomanStyle = document.getElementById('hlcl-roman-style'); // 'tailo' or 'poj'
   const hlclCaseCheck = document.getElementById('hlcl-case-check');
   const hlclFallbackCheck = document.getElementById('hlcl-fallback-check');
+  const hlclPunctCheck = document.getElementById('hlcl-punct-check');
   const hlclCharCount = document.getElementById('hlcl-char-count');
   const hlclStatus = document.getElementById('hlcl-status');
   const hlclSwapBtn = document.getElementById('hlcl-swap-btn');
@@ -256,11 +257,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const style = hlclRomanStyle.value;
     const caseInsensitive = hlclCaseCheck ? hlclCaseCheck.checked : true;
     const useFallback = hlclFallbackCheck ? hlclFallbackCheck.checked : true;
+    const englishPunctuation = hlclPunctCheck ? hlclPunctCheck.checked : true;
 
     hlclStatus.innerHTML = '<span class="text-indigo-500 animate-pulse font-medium">⚡ 運算中...</span>';
 
     if (mode === 'hl2cl') {
-      const res = await Engine.hl2clAsync(text, { outputStyle: style, useFallback });
+      const res = await Engine.hl2clAsync(text, { outputStyle: style, useFallback, englishPunctuation });
       hlclOutput.value = res.result;
       hlclStatus.textContent = `漢羅轉全羅完成：耗時 ${res.stats.timeMs}ms | 匹配 ${res.stats.matched} 處詞彙`;
     } else {
@@ -273,6 +275,7 @@ document.addEventListener('DOMContentLoaded', function () {
   hlclInput.addEventListener('input', debounce(doHlclConvert, 180));
   if (hlclCaseCheck) hlclCaseCheck.addEventListener('change', doHlclConvert);
   if (hlclFallbackCheck) hlclFallbackCheck.addEventListener('change', doHlclConvert);
+  if (hlclPunctCheck) hlclPunctCheck.addEventListener('change', doHlclConvert);
   hlclMode.addEventListener('change', () => {
     updateHlclPlaceholders();
     doHlclConvert();
