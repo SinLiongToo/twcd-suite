@@ -265,6 +265,10 @@
             <input type="checkbox" id="hlcl-punct-check" checked class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4">
             <span class="text-slate-600 dark:text-slate-400">英文半形標點</span>
           </label>
+          <label class="flex items-center space-x-1.5 cursor-pointer select-none text-xs">
+            <input type="checkbox" id="hlcl-hyphen-check" checked class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4">
+            <span class="text-slate-600 dark:text-slate-400">音節連字符 (Hyphen)</span>
+          </label>
         </div>
 
         <div class="flex items-center space-x-2">
@@ -659,13 +663,14 @@
       <div id="modal-content-changelog" class="hidden space-y-3 text-xs leading-relaxed">
         <div class="p-3 bg-indigo-50/70 dark:bg-indigo-950/40 rounded-xl border border-indigo-200 dark:border-indigo-800">
           <div class="flex items-center justify-between font-bold text-indigo-700 dark:text-indigo-300 mb-1">
-            <span>v2.2 (教育部真人原音串流與英文半形標點升級版)</span>
+            <span>v2.2 (教育部真人原音串流與音節連字符升級版)</span>
             <span class="text-[10px] text-indigo-500 font-bold">當前版本</span>
           </div>
           <ul class="list-disc list-inside space-y-0.5 text-slate-600 dark:text-slate-300">
             <li><strong>外接教育部 / ChhoeTaigi 21,700+ 真人原音</strong>：整合教育部辭典與 ChhoeTaigi 鏡像，收錄 21,769 條純正閩南語/台語母語播音員真人原音檔。</li>
             <li><strong>音訊排隊連續播放 (Audio Queue)</strong>：長篇文章自動最長分詞連續播放，詞與詞之間維持 80ms 擬真自然停頓。</li>
             <li><strong>雙模發音架構 (Dual-Mode Fallback)</strong>：真人音檔優先，生僻詞或離線無縫降級呼叫本機 Web Speech API 語音合成。</li>
+            <li><strong>智慧音節連字符還原 (Smart Hyphenation)</strong>：解決舊版 TWCD (2006) 42,000+ 條詞庫緊縮連寫（如 <code>ji̍tthâu</code>）之歷史痛點，自動交叉對照反向庫與 Ruby 庫，精確還原為現代標準音節連字符（<code>Ji̍t-thâu</code>、<code>Kàu-hōe</code>、<code>tāi-ha̍k</code>），並提供使用者自由切換。</li>
             <li><strong>全羅英文半形標點規範</strong>：轉為全羅時（HL ➔ CL 及 HG ➔ 全羅），中文全形標點自動轉換為標準英文半形標點（<code>, . ! ? : ; " ' ( )</code>），嚴格遵循西文排版空格規則與句首大寫。</li>
             <li><strong>播放即時狀態切換 (Toggle)</strong>：發音按鈕支援播放中一鍵中斷，附紅色脈衝指示。</li>
             <li><strong>辭典檢索即點即播</strong>：在辭典庫檢索結果中，凡有收錄音檔的詞條即顯示「真人發音」按鈕。</li>

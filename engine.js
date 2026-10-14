@@ -99,6 +99,8 @@
         cl_hl_case_sensitive: null,
         ruby: null
       };
+      this._hyphenMap = null;
+      this._charFallback = null;
     },
 
     buildCharFallback: function () {
@@ -128,6 +130,57 @@
       }
       this._charFallback = map;
       return map;
+    },
+
+    buildHyphenMap: function () {
+      if (this._hyphenMap) return this._hyphenMap;
+      const map = new Map();
+
+      // 1. From CL_HL (26,580 entries with hyphens)
+      const clList = (this.custom.cl_hl || []).concat((this.data && this.data.cl_hl) || []);
+      for (let i = 0; i < clList.length; i++) {
+        const entry = clList[i];
+        if (entry.c && entry.c.includes('-') && !entry.c.startsWith('-') && !entry.c.endsWith('-')) {
+          const unhyphenated = entry.c.replace(/[\s-]/g, '').toLowerCase();
+          if (!map.has(unhyphenated) && unhyphenated.length >= 3) {
+            map.set(unhyphenated, entry.c);
+          }
+        }
+      }
+
+      // 2. From Ruby (10,197 entries with hyphens)
+      const rubyList = (this.custom.ruby || []).concat((this.data && this.data.ruby) || []);
+      for (let i = 0; i < rubyList.length; i++) {
+        const entry = rubyList[i];
+        if (!entry.r) continue;
+        const match = entry.r.match(/<rt>([^<]+)<\/rt>/);
+        if (match && match[1].includes('-') && !match[1].startsWith('-') && !match[1].endsWith('-')) {
+          const conv = this.ctsConvert(match[1], 'tailo_num', 'poj_unicode');
+          const unhyphenated = conv.replace(/[\s-]/g, '').toLowerCase();
+          if (!map.has(unhyphenated) && unhyphenated.length >= 3) {
+            map.set(unhyphenated, conv);
+          }
+        }
+      }
+
+      this._hyphenMap = map;
+      return map;
+    },
+
+    restoreHyphens: function (text) {
+      if (!text) return '';
+      const map = this.buildHyphenMap();
+      return text.replace(/[a-zA-Z\u00C0-\u024F\u1E00-\u1EFF\u0300-\u036Fⁿ]+/g, (w) => {
+        const key = w.toLowerCase();
+        if (map.has(key)) {
+          const hyp = map.get(key);
+          if (w[0] === w[0].toUpperCase()) {
+            return hyp[0].toUpperCase() + hyp.slice(1);
+          }
+          return hyp;
+        }
+        return w;
+      });
     },
 
     _createTrieNode: function () {
@@ -412,7 +465,8 @@
       options = Object.assign({
         outputStyle: 'tailo',  // 'tailo' or 'poj'
         useFallback: true,
-        englishPunctuation: true
+        englishPunctuation: true,
+        useHyphens: true
       }, options);
 
       const trie = this.getHlClTrie();
@@ -450,21 +504,13 @@
         }
 
         if (longestMatch !== null) {
-          let roman = longestMatch;
-          if (options.outputStyle === 'tailo') {
-            roman = this.cl2tl(roman);
-          }
-          out += roman + ' ';
+          out += longestMatch + ' ';
           matchCount++;
           i += longestMatchLen;
         } else {
           const ch = chars[i];
           if (options.useFallback && hanCharRegex.test(ch) && fallback[ch]) {
-            let pron = fallback[ch];
-            if (options.outputStyle === 'tailo') {
-              pron = this.cl2tl(pron);
-            }
-            out += pron + ' ';
+            out += fallback[ch] + ' ';
             matchCount++;
           } else {
             out += ch;
@@ -473,7 +519,17 @@
         }
       }
 
-      // Post-processing: English half-width punctuation, capitalization, and clean spacing
+      // Step 1: Restore syllable hyphens (e.g. ji̍tthâu -> ji̍t-thâu) if enabled
+      if (options.useHyphens !== false) {
+        out = this.restoreHyphens(out);
+      }
+
+      // Step 2: Convert to Tai-lo if requested
+      if (options.outputStyle === 'tailo') {
+        out = this.cl2tl(out);
+      }
+
+      // Step 3: English half-width punctuation, capitalization, and clean spacing
       if (options.englishPunctuation !== false) {
         out = this.toEnglishPunctuation(out);
       } else {
