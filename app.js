@@ -95,27 +95,41 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Modal Sub-tabs (Sources vs Changelog)
+  // Modal Sub-tabs (Sources, Tech, Tribute, Changelog)
   const modalTabSources = document.getElementById('modal-tab-sources');
+  const modalTabTech = document.getElementById('modal-tab-tech');
+  const modalTabTribute = document.getElementById('modal-tab-tribute');
   const modalTabChangelog = document.getElementById('modal-tab-changelog');
+
   const modalContentSources = document.getElementById('modal-content-sources');
+  const modalContentTech = document.getElementById('modal-content-tech');
+  const modalContentTribute = document.getElementById('modal-content-tribute');
   const modalContentChangelog = document.getElementById('modal-content-changelog');
 
-  if (modalTabSources && modalTabChangelog) {
-    modalTabSources.addEventListener('click', () => {
-      modalTabSources.className = 'py-2 px-4 border-b-2 border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400 font-bold';
-      modalTabChangelog.className = 'py-2 px-4 border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400';
-      modalContentSources.classList.remove('hidden');
-      modalContentChangelog.classList.add('hidden');
-    });
+  const modalTabs = [
+    { btn: modalTabSources, content: modalContentSources },
+    { btn: modalTabTech, content: modalContentTech },
+    { btn: modalTabTribute, content: modalContentTribute },
+    { btn: modalTabChangelog, content: modalContentChangelog },
+  ];
 
-    modalTabChangelog.addEventListener('click', () => {
-      modalTabChangelog.className = 'py-2 px-4 border-b-2 border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400 font-bold';
-      modalTabSources.className = 'py-2 px-4 border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400';
-      modalContentChangelog.classList.remove('hidden');
-      modalContentSources.classList.add('hidden');
-    });
-  }
+  modalTabs.forEach(item => {
+    if (item.btn && item.content) {
+      item.btn.addEventListener('click', () => {
+        modalTabs.forEach(t => {
+          if (t.btn && t.content) {
+            if (t.btn === item.btn) {
+              t.btn.className = 'py-2.5 px-3 sm:px-4 border-b-2 border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400 font-bold whitespace-nowrap';
+              t.content.classList.remove('hidden');
+            } else {
+              t.btn.className = 'py-2.5 px-3 sm:px-4 border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 whitespace-nowrap';
+              t.content.classList.add('hidden');
+            }
+          }
+        });
+      });
+    }
+  });
 
   // Tab Switching
   const navTabs = document.querySelectorAll('.nav-tab');
@@ -590,12 +604,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const uDicts = Engine.getUserDicts();
     const chhitjiaCnt = Object.keys(uDicts.chhitjia || {}).length;
     const laigoakhoCnt = (uDicts.laigoakho || []).length;
+    const hokkokCnt = Object.keys(uDicts.hokkok || {}).length;
 
     const el = document.getElementById('dict-stats-summary');
     if (el) {
       el.innerHTML = `
         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-200">🏛️ 教育部/萌典：${moedictCnt || 20604} 詞</span>
         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200">📜 杜信龍《七字孽》：${chhitjiaCnt || 8139} 詞</span>
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-100 text-sky-800 dark:bg-sky-900/60 dark:text-sky-200">🛡️ 杜信龍《護國》：${hokkokCnt || 1836} 詞</span>
         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200">🩺 鄭仁壽《內外科看護學》：${laigoakhoCnt || 1019} 詞</span>
         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-100 text-teal-800 dark:bg-teal-900/50 dark:text-teal-300">🎙️ 教育部真人音檔：${audioCnt}</span>
         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300">華台片語：${hgCnt}</span>
@@ -617,7 +633,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // 1. Priority 1: 教育部 / 萌典辭典 (MOE / Moedict)
     const moeResults = Engine.queryMoedict(q, 15);
 
-    // 1.5. Priority 1.5: 使用者特藏專屬詞庫 (杜信龍《七字孽》 & 鄭仁壽《內外科看護學》)
+    // 1.5. Priority 1.5: 使用者特藏專屬詞庫 (杜信龍《七字孽》、杜信龍《護國》& 鄭仁壽《內外科看護學》)
     const userDictResults = Engine.queryUserDicts(q, 15);
 
     // 2. Priority 2: TWCD 經典庫 (TWCD Classical Corpus)
@@ -638,6 +654,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const hasAnyResults = moeResults.length > 0 || 
       userDictResults.chhitjia.length > 0 || 
+      userDictResults.hokkok.length > 0 || 
       userDictResults.laigoakho.length > 0 || 
       twcdResults.length > 0;
 
@@ -750,6 +767,62 @@ document.addEventListener('DOMContentLoaded', function () {
                       </a>
                       <a href="https://readmoo.com/book/210456880000101" target="_blank" rel="noopener noreferrer" class="px-2 py-1 text-xs text-amber-600 hover:text-amber-700 dark:text-amber-400 font-medium transition" title="前往 Readmoo 讀墨購買電子書">
                         讀墨 ↗
+                      </a>
+                    </div>
+                  </div>
+                  <div class="space-y-1">
+                    ${examplesHtml}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // Render Hokkok Results (杜信龍《護國 評論集》)
+    if (userDictResults.hokkok && userDictResults.hokkok.length > 0) {
+      html += `
+        <div class="mb-5">
+          <div class="flex items-center justify-between mb-2 pb-1 border-b border-sky-200 dark:border-sky-900/50">
+            <h4 class="text-xs font-bold text-sky-700 dark:text-sky-300 uppercase tracking-wider flex items-center space-x-1.5">
+              <span>🛡️ 杜信龍《護國 評論集》台語詞典（政經國安與母語時論語境）</span>
+              <span class="px-2 py-0.5 text-[10px] bg-sky-100 text-sky-800 dark:bg-sky-900/60 dark:text-sky-200 rounded-full font-sans">${userDictResults.hokkok.length} 筆</span>
+            </h4>
+          </div>
+          <div class="space-y-3">
+            ${userDictResults.hokkok.map(item => {
+              const examplesHtml = (item.e || []).map(ex => `
+                <div class="mt-1 pl-2.5 border-l-2 border-sky-200 dark:border-sky-800 text-xs space-y-0.5">
+                  <div class="font-medium text-slate-800 dark:text-slate-200 flex items-start space-x-1.5">
+                    <span class="text-[10px] font-bold px-1.5 py-0.2 bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300 rounded shrink-0">${ex.t || '護國'}</span>
+                    <span class="leading-relaxed">${ex.h || ''}</span>
+                  </div>
+                  ${ex.r ? `<div class="font-mono text-sky-600 dark:text-sky-400 text-[11px]">${ex.r}</div>` : ''}
+                </div>
+              `).join('');
+
+              const countBadge = item.c ? `<span class="text-[11px] text-slate-400 font-sans ml-1.5">(${item.c}次)</span>` : '';
+              const phraseBadge = item.p ? `<span class="px-1.5 py-0.2 text-[10px] bg-sky-50 dark:bg-sky-950 text-sky-600 dark:text-sky-300 rounded border border-sky-200 dark:border-sky-800 ml-1.5">片語</span>` : '';
+
+              return `
+                <div class="p-3.5 bg-sky-50/40 dark:bg-slate-800/80 rounded-xl border border-sky-100 dark:border-sky-900/40 shadow-xs">
+                  <div class="flex items-start justify-between gap-2 mb-2 pb-2 border-b border-sky-100/60 dark:border-sky-900/30">
+                    <div>
+                      <div class="flex items-baseline space-x-2">
+                        <span class="text-lg font-bold font-serif text-slate-900 dark:text-white">${item.word}</span>
+                        <span class="text-sm font-mono font-medium text-sky-600 dark:text-sky-400">${item.r || ''}</span>
+                        ${countBadge}
+                        ${phraseBadge}
+                      </div>
+                    </div>
+                    <div class="flex items-center space-x-2 shrink-0">
+                      <a href="https://sinliongtoo.github.io/hok_kok_ebook/#dict" target="_blank" rel="noopener noreferrer" class="px-2 py-1 text-xs text-sky-600 hover:text-sky-700 dark:text-sky-400 dark:hover:text-sky-300 font-medium transition" title="前往《護國 評論集》線上詞典">
+                        護國詞典 ↗
+                      </a>
+                      <a href="https://sinliongtoo.github.io/hok_kok_ebook/" target="_blank" rel="noopener noreferrer" class="px-2 py-1 text-xs text-slate-500 hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-300 font-medium transition" title="閱讀《護國 評論集》全文">
+                        電子書 ↗
                       </a>
                     </div>
                   </div>

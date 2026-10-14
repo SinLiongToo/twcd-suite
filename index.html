@@ -121,9 +121,9 @@
         </div>
 
         <!-- Info / Credits Button -->
-        <button id="info-btn" class="p-2 rounded-lg text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center space-x-1 text-xs font-semibold" title="來源出處與致敬說明">
+        <button id="info-btn" class="p-2 rounded-lg text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center space-x-1 text-xs font-semibold" title="資料來源、技術出處與致敬銘謝">
           <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-          <span class="hidden md:inline">來源出處</span>
+          <span class="hidden md:inline">出處與銘謝</span>
         </button>
 
         <!-- Dark/Light Theme Button -->
@@ -597,7 +597,7 @@
   <footer class="bg-white/60 dark:bg-slate-900/60 border-t border-slate-200 dark:border-slate-800 py-4 text-center text-xs text-slate-500 dark:text-slate-400">
     <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2.5">
       <div class="text-left sm:text-left">
-        <span class="font-semibold text-slate-700 dark:text-slate-300">資料來源：</span>TWCD 核心資料庫 (信望愛 FHL) • 教育部萌典 • 杜信龍《七字孽》 • 鄭仁壽《內外科看護學》
+        <span class="font-semibold text-slate-700 dark:text-slate-300">資料來源：</span>TWCD 核心資料庫 (信望愛 FHL) • 教育部萌典 • 杜信龍《七字孽》 • 杜信龍《護國 評論集》 • 鄭仁壽《內外科看護學》
       </div>
       <div class="flex flex-wrap items-center justify-center sm:justify-end gap-x-3 gap-y-1.5">
         <!-- 訪客使用人數統計 -->
@@ -607,11 +607,11 @@
         <span>•</span>
         <span class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 font-medium">
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-          <span>📅 最後更新日期：2026-10-14</span>
-          <span class="text-[10px] px-1.5 py-0.2 bg-emerald-200/80 dark:bg-emerald-900 rounded font-semibold">v2.4</span>
+          <span>📅 最後更新日期：2026-10-15</span>
+          <span class="text-[10px] px-1.5 py-0.2 bg-emerald-200/80 dark:bg-emerald-900 rounded font-semibold">v2.5</span>
         </span>
         <span>•</span>
-        <button id="footer-credits-link" class="text-indigo-600 dark:text-indigo-400 hover:underline font-medium">查看完整出處與致敬</button>
+        <button id="footer-credits-link" class="text-indigo-600 dark:text-indigo-400 hover:underline font-medium">查看完整資料來源、技術出處與致敬銘謝</button>
       </div>
     </div>
   </footer>
@@ -630,11 +630,17 @@
       </div>
 
       <!-- Modal Tabs -->
-      <div class="flex border-b border-slate-200 dark:border-slate-800 text-sm font-medium">
-        <button id="modal-tab-sources" class="py-2 px-4 border-b-2 border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400 font-bold">
-          📜 詞庫來源、授權與互補機制
+      <div class="flex border-b border-slate-200 dark:border-slate-800 text-xs sm:text-sm font-medium overflow-x-auto">
+        <button id="modal-tab-sources" class="py-2.5 px-3 sm:px-4 border-b-2 border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400 font-bold whitespace-nowrap">
+          📜 資料來源與授權
         </button>
-        <button id="modal-tab-changelog" class="py-2 px-4 border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400">
+        <button id="modal-tab-tech" class="py-2.5 px-3 sm:px-4 border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 whitespace-nowrap">
+          ⚙️ 技術出處與演算法
+        </button>
+        <button id="modal-tab-tribute" class="py-2.5 px-3 sm:px-4 border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 whitespace-nowrap">
+          💐 致敬與銘謝
+        </button>
+        <button id="modal-tab-changelog" class="py-2.5 px-3 sm:px-4 border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 whitespace-nowrap">
           🔖 版本演進 (Changelog)
         </button>
       </div>
@@ -644,49 +650,39 @@
         <div class="p-3.5 bg-indigo-50/70 dark:bg-indigo-950/40 rounded-xl border border-indigo-200 dark:border-indigo-800">
           <h4 class="font-bold text-indigo-700 dark:text-indigo-300 mb-1 flex items-center space-x-1.5">
             <span>🏛️ 教育部《臺灣台語常用詞辭典》 / g0v 零時政府「萌典」</span>
-            <span class="text-[10px] px-2 py-0.5 bg-indigo-200 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 rounded-full">官方權威詞庫</span>
+            <span class="text-[10px] px-2 py-0.5 bg-indigo-200 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 rounded-full">官方權威標準</span>
           </h4>
           <p class="text-slate-600 dark:text-slate-300 text-xs">
-            收錄 <strong>20,604 條精選台語詞目</strong>與 <strong>21,700+ 條母語播音員真人發音原音檔</strong>。每條皆附有教育部推薦漢字、現代標準音節連字符（`-`）、台羅/白話字音標、詳細詞性、華語白話釋義與生活對話例句（三對照：台語漢字、台羅拼音、華語翻譯）。
+            收錄 <strong>20,604 條精選台語詞目</strong>與 <strong>21,700+ 條母語播音員真人發音原音檔</strong>。每條詞目均具備教育部推薦漢字、現代標準音節連字符（`-`）、台羅/白話字音標、詞性分類、華語白話釋義與生活對話三對照例句（台語漢字、台羅拼音、華語翻譯）。
           </p>
           <ul class="list-disc list-inside text-xs text-slate-500 dark:text-slate-400 mt-2 space-y-1">
             <li><strong>原始著作權</strong>：中華民國教育部《臺灣閩南語常用詞辭典》（依「政府資料開放授權條款」及 CC BY-ND 3.0 臺灣版釋出）。</li>
             <li><strong>g0v 萌典專案</strong>：由唐鳳 (Audrey Tang) 與開源社群清洗編排為標準 UTF-8 JSON，衍生編輯著作權依 <strong>CC0 1.0 (公眾領域貢獻宣告)</strong> 開放。</li>
+            <li><strong>語音鏡像</strong>：由 ChhoeTaigi (找台語) 開源團隊維護高可用 CDN 音檔服務。</li>
           </ul>
         </div>
 
         <div class="p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700/60">
           <h4 class="font-bold text-slate-800 dark:text-slate-200 mb-1 flex items-center space-x-1.5">
-            <span>🏛️ TWCD (Taiwanese Word Conversion Database) 經典專案</span>
+            <span>🏛️ TWCD (Taiwanese Word Conversion Database) 經典專案庫</span>
             <span class="text-[10px] px-2 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-full">民間海量經典</span>
           </h4>
           <p class="text-slate-600 dark:text-slate-300 text-xs">
             收錄高達 <strong>42,337 條漢羅全羅片語對照庫</strong>、<strong>26,580 條反向庫</strong>、<strong>14,136 條華台翻譯庫</strong>、Ruby 標音庫與 CTS 音標演算法，源自台灣早期台文數位化開拓專案。
           </p>
           <ul class="list-disc list-inside text-xs text-slate-500 dark:text-slate-400 mt-2 space-y-1">
-            <li><strong>原研發先驅</strong>：信望愛資訊中心 (FHL) 台語專案團隊、蔡哲民 (tjm) 老師、陳昆池 (Tan Khun-ti) 老師、鄭良偉教授等早期台語文資訊化開創者。</li>
-            <li><strong>特色與強項</strong>：詞條數量龐大、民間日常俗諺俚語覆蓋面廣、深具早期白話字 (POJ) 教會文獻代表性。</li>
-          </ul>
-        </div>
-
-        <div class="p-3.5 bg-amber-50/70 dark:bg-amber-950/40 rounded-xl border border-amber-200 dark:border-amber-800/60">
-          <h4 class="font-bold text-amber-800 dark:text-amber-300 mb-1 flex items-center space-x-1.5">
-            <span>⚖️ 詞庫優先權與雙庫互補機制 (Priority & Complementarity)</span>
-          </h4>
-          <ul class="list-disc list-inside text-xs text-slate-600 dark:text-slate-300 space-y-1.5 mt-1.5">
-            <li><strong>「教育部萌典為先 (MOE First)」</strong>：兩邊皆有收錄之詞目（如「日頭」、「教會」），優先採用教育部推薦用字、標準音節連字符（`ji̍t-thâu`、`kàu-hōe`）與官方標準音標，徹底解決舊版緊縮連寫之缺陷。</li>
-            <li><strong>「TWCD 補其不足 (TWCD Fallback)」</strong>：遇教育部未收錄之詞彙（如民間老字號、特殊俚語、俗諺、教會專名），全自動由 TWCD 42,000+ 龐大片語庫接手轉譯，確保覆蓋率不漏失。</li>
-            <li><strong>「檢索兩者並陳」</strong>：在辭典檢索頁中，上方優先顯示教育部萌典完整釋義、例句與原音；下方並列 TWCD 經典收錄對照，方便研究者直接比較官方標準與民間經典之異同。</li>
+            <li><strong>原研發先驅</strong>：信望愛資訊中心 (FHL) 台語文專案團隊、蔡哲民 (tjm) 老師、陳昆池 (Tan Khun-ti) 老師、鄭良偉教授等早期台語文資訊化開創者。</li>
+            <li><strong>典藏特色</strong>：詞條數量龐大、民間日常俗諺俚語覆蓋面廣、深具早期教會白話字 (POJ) 聖經文獻代表性。</li>
           </ul>
         </div>
 
         <div class="p-3.5 bg-emerald-50/70 dark:bg-emerald-950/40 rounded-xl border border-emerald-200 dark:border-emerald-800">
           <h4 class="font-bold text-emerald-700 dark:text-emerald-300 mb-1 flex items-center space-x-1.5">
-            <span>📜 杜信龍《七字孽 chhit-jī-gia̍t》台語詞典</span>
-            <span class="text-[10px] px-2 py-0.5 bg-emerald-200 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200 rounded-full">當代文學語境</span>
+            <span>📜 杜信龍《七字孽 chhit-jī-gia̍t》台語詩歌文學詞典</span>
+            <span class="text-[10px] px-2 py-0.5 bg-emerald-200 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200 rounded-full">當代原創文學特藏</span>
           </h4>
           <p class="text-slate-600 dark:text-slate-300 text-xs">
-            收錄 <strong>8,139 條詞目</strong>。語料源自杜信龍老師所著之台語詩歌作品《七字孽 chhit-jī-gia̍t》，完整包含台語漢字、白話字/台羅標音，以及極具本土生命力之原創七字仔韻文詩歌例句。
+            收錄 <strong>8,139 條詞目</strong>。語料源自杜信龍老師所著之台語七字仔韻文詩歌長卷《七字孽 chhit-jī-gia̍t》，完整包含台語漢字、白話字/台羅標音，以及極具本土生命力與押韻美學的原創七字仔詩歌例句。
           </p>
           <ul class="list-disc list-inside text-xs text-slate-500 dark:text-slate-400 mt-2 space-y-1">
             <li><strong>創作者與出處</strong>：杜信龍 (Tō͘ Sìn-liông) 著《七字孽 chhit-jī-gia̍t》（<a href="https://readmoo.com/book/210456880000101" target="_blank" class="underline text-indigo-500">Readmoo 讀墨電子書</a>）。</li>
@@ -695,24 +691,169 @@
           </ul>
         </div>
 
-        <div class="p-3.5 bg-amber-50/70 dark:bg-amber-950/40 rounded-xl border border-amber-200 dark:border-amber-800">
-          <h4 class="font-bold text-amber-800 dark:text-amber-300 mb-1 flex items-center space-x-1.5">
-            <span>🩺 鄭仁壽《內外科看護學》醫學語彙庫 (1917)</span>
-            <span class="text-[10px] px-2 py-0.5 bg-amber-200 dark:bg-amber-900 text-amber-800 dark:text-amber-200 rounded-full">早期醫學三語典</span>
+        <div class="p-3.5 bg-sky-50/70 dark:bg-sky-950/40 rounded-xl border border-sky-200 dark:border-sky-800">
+          <h4 class="font-bold text-sky-700 dark:text-sky-300 mb-1 flex items-center space-x-1.5">
+            <span>🛡️ 杜信龍《護國 評論集（台-華）》當代政論母語詞典</span>
+            <span class="text-[10px] px-2 py-0.5 bg-sky-200 dark:bg-sky-900 text-sky-800 dark:text-sky-200 rounded-full">當代政經國安時論</span>
           </h4>
           <p class="text-slate-600 dark:text-slate-300 text-xs">
-            收錄 <strong>1,019 條珍貴醫學名詞</strong>。源自 1917 年台灣基督長老教會醫療現代化之劃時代醫學護理著作《內外科看護學》（Lāi-gōa-kho Khàn-hō͘-ha̍k，鄭仁壽編著），原書 664～694 頁之「語彙 GÚ-LŪI」，具備白話字 (POJ)、漢字與英語 (English) 三語權威對照。
+            收錄 <strong>1,836 條專屬詞目</strong>。語料自杜信龍老師所著之《護國 評論集》全書 240 篇政經國安、民主改革、母語復振評論（收錄 2014-2026 年於民報、自由時報發表之專欄）中專屬研製擷取，支援全羅、漢羅、白話字 (POJ) 與教育部台羅，附帶當代政論時事實務例句。
           </p>
           <ul class="list-disc list-inside text-xs text-slate-500 dark:text-slate-400 mt-2 space-y-1">
-            <li><strong>原作者與編整</strong>：鄭仁壽 (Teh Jîn-siū, 1917) 編著；杜信龍老師數位化編整校注。</li>
+            <li><strong>創作者與出處</strong>：杜信龍 (Tō͘ Sìn-Liông) 著《護國 評論集（台-華）》。</li>
+            <li><strong>授權協議</strong>：創用 CC 姓名標示-非商業性-相同方式分享 4.0 國際 (CC BY-NC-SA 4.0)。</li>
+            <li><strong>專屬線上詞典與電子書</strong>：<a href="https://sinliongtoo.github.io/hok_kok_ebook/#dict" target="_blank" class="underline text-indigo-500">護國台語詞典 ↗</a> • <a href="https://sinliongtoo.github.io/hok_kok_ebook/" target="_blank" class="underline text-indigo-500">護國電子書全文 ↗</a>。</li>
+          </ul>
+        </div>
+
+        <div class="p-3.5 bg-amber-50/70 dark:bg-amber-950/40 rounded-xl border border-amber-200 dark:border-amber-800">
+          <h4 class="font-bold text-amber-800 dark:text-amber-300 mb-1 flex items-center space-x-1.5">
+            <span>🩺 鄭仁壽《內外科看護學》早期護理醫學語彙 (1917)</span>
+            <span class="text-[10px] px-2 py-0.5 bg-amber-200 dark:bg-amber-900 text-amber-800 dark:text-amber-200 rounded-full">近代醫學三語典</span>
+          </h4>
+          <p class="text-slate-600 dark:text-slate-300 text-xs">
+            收錄 <strong>1,019 條珍貴醫學術語</strong>。源自 1917 年台灣基督長老教會劃時代醫療現代化著作《內外科看護學》（Lāi-gōa-kho Khàn-hō͘-ha̍k，鄭仁壽編著），原書 664～694 頁之「語彙 GÚ-LŪI」，具備白話字 (POJ)、漢字與英語 (English) 三語權威對照。
+          </p>
+          <ul class="list-disc list-inside text-xs text-slate-500 dark:text-slate-400 mt-2 space-y-1">
+            <li><strong>原作者與編整</strong>：鄭仁壽 (Teh Jîn-siū, 1917) 編著；杜信龍老師現代數位化編整校注。</li>
+            <li><strong>典藏權利</strong>：公有領域歷史文獻 (Public Domain 1917)，數位化成果開放自由研讀。</li>
             <li><strong>專案專屬閱讀本</strong>：<a href="https://sinliongtoo.github.io/laigoakho_Tejinsiu_ebook/#/" target="_blank" class="underline text-indigo-500">內外科看護學數位版 ↗</a>。</li>
           </ul>
         </div>
 
-        <div class="p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700/60">
-          <h4 class="font-bold text-purple-600 dark:text-purple-400 mb-1">💻 Next-Gen 現代化重構工程</h4>
+        <div class="p-3.5 bg-purple-50/70 dark:bg-purple-950/40 rounded-xl border border-purple-200 dark:border-purple-800/60">
+          <h4 class="font-bold text-purple-800 dark:text-purple-300 mb-1 flex items-center space-x-1.5">
+            <span>⚖️ 詞庫階層決策與雙庫互補架構 (Priority & Complementarity)</span>
+          </h4>
+          <ul class="list-disc list-inside text-xs text-slate-600 dark:text-slate-300 space-y-1 mt-1">
+            <li><strong>教育部萌典為先 (MOE First)</strong>：兩庫皆收錄之詞目優先採用教育部推薦漢字與標準連字符（`-`），消弭歷史緊縮連寫缺陷。</li>
+            <li><strong>當代文學/時論/醫學特藏中繼 (Specialized Dictionaries Mid)</strong>：精準命中詩詞押韻音、時事評論新詞與百年護理專有名詞。</li>
+            <li><strong>TWCD 補其不足 (TWCD Fallback)</strong>：未收錄於規範庫之生動民間俚語、俗諺老詞，全自動由 TWCD 42,000+ 龐大片語庫接續轉譯。</li>
+            <li><strong>辭典檢索五體並陳</strong>：查詢單字詞時同時並列五大系統釋義、例句與原音，方便學術比較。</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Tab Content 2: Technical Origins & Algorithms -->
+      <div id="modal-content-tech" class="hidden space-y-4 text-sm leading-relaxed">
+        <div class="p-3.5 bg-indigo-50/70 dark:bg-indigo-950/40 rounded-xl border border-indigo-200 dark:border-indigo-800">
+          <h4 class="font-bold text-indigo-700 dark:text-indigo-300 mb-1 flex items-center space-x-1.5">
+            <span>⚙️ CTS (Chinese/Taiwanese/Hakka Syllables) 音標編碼轉換演算法</span>
+            <span class="text-[10px] px-2 py-0.5 bg-indigo-200 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 rounded-full">核心演算法</span>
+          </h4>
           <p class="text-slate-600 dark:text-slate-300 text-xs">
-            由現代化 AI 程式碼工程團隊進行全方位逆向工程重構，將舊版分散的 32-bit Java Swing 視窗與批次檔，升級為單一純前端、100% 離線運行、極速響應之 Web 應用。
+            由<strong>蔡哲民老師 (tjm)</strong> 於信望愛資訊中心專案中原創研發。演算法透過將台語與客語音節之「聲母 (Initials)」、「韻母 (Finals)」與「聲調 (Tones)」拆解為獨立維度矩陣，實現不同標音規範間的無失真雙向正交轉換。
+          </p>
+          <ul class="list-disc list-inside text-xs text-slate-500 dark:text-slate-400 mt-2 space-y-1">
+            <li><strong>完整支援體系</strong>：教育部台羅 (Unicode/數字調)、教會白話字 POJ (Unicode/數字調)、台灣語言音標方案 (TP)、HOTSYS 造字相容編碼。</li>
+            <li><strong>Next-Gen 升級</strong>：純 JavaScript 逆向重製，實現六欄即時多向同步聯動計算。</li>
+          </ul>
+        </div>
+
+        <div class="p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700/60">
+          <h4 class="font-bold text-slate-800 dark:text-slate-200 mb-1 flex items-center space-x-1.5">
+            <span>🌳 高效 Trie (前綴字典樹) 決策匹配引擎</span>
+            <span class="text-[10px] px-2 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-full">100x 效能躍升</span>
+          </h4>
+          <p class="text-slate-600 dark:text-slate-300 text-xs">
+            徹底替換舊版多輪正規表達式與全陣列掃描，改以現代記憶體前綴字典樹 (Trie) 進行單趟 $O(M)$ 貪婪最長匹配 (Longest Match Greedy Segmentation)。
+          </p>
+          <ul class="list-disc list-inside text-xs text-slate-500 dark:text-slate-400 mt-2 space-y-1">
+            <li><strong>瞬時轉譯</strong>：處理 15,000 字以上長篇漢羅或全羅文章僅需 1.8 毫秒。</li>
+            <li><strong>防凍結非同步調度</strong>：搭配 180ms 輸入防抖 (Debounce) 與 Web Worker/Promise 分塊架構，長文轉譯打字絲滑不卡頓。</li>
+          </ul>
+        </div>
+
+        <div class="p-3.5 bg-sky-50/70 dark:bg-sky-950/40 rounded-xl border border-sky-200 dark:border-sky-800">
+          <h4 class="font-bold text-sky-700 dark:text-sky-300 mb-1 flex items-center space-x-1.5">
+            <span>➖ 智慧音節連字符還原演算法 (Smart Hyphenation Recovery Engine)</span>
+            <span class="text-[10px] px-2 py-0.5 bg-sky-200 dark:bg-sky-900 text-sky-800 dark:text-sky-200 rounded-full">語音結構重構</span>
+          </h4>
+          <p class="text-slate-600 dark:text-slate-300 text-xs">
+            突破舊版 TWCD (2006) 42,000+ 條詞庫將多音節緊縮連寫（如 <code>ji̍tthâu</code>、<code>kàuhōe</code>）的歷史局限。全新研製音節分析還原演算法，交叉比對 28,242 條教育部標準詞目音節庫與單字注音庫，全自動將緊縮拼音精準還原為現代標準音節連字符（<code>Ji̍t-thâu</code>、<code>Kàu-hōe</code>、<code>tāi-ha̍k</code>、<code>tông-kám</code>）。
+          </p>
+        </div>
+
+        <div class="p-3.5 bg-emerald-50/70 dark:bg-emerald-950/40 rounded-xl border border-emerald-200 dark:border-emerald-800">
+          <h4 class="font-bold text-emerald-700 dark:text-emerald-300 mb-1 flex items-center space-x-1.5">
+            <span>🔤 西文排版標點規範引擎與 HTML5 Ruby 富文本技術</span>
+          </h4>
+          <ul class="list-disc list-inside text-xs text-slate-600 dark:text-slate-300 space-y-1.5">
+            <li><strong>西文標點排版規範</strong>：轉為全羅時全自動將中文全形標點轉換為標準英文半形標點（<code>, . ! ? : ; " ' ( ) &lt; &gt; -- ... ~</code>），遵循西文印刷規範（標點前無空隙、標點後自然留白、成對引號正確規整）。</li>
+            <li><strong>HTML5 Standard &lt;ruby&gt; 排版</strong>：依 W3C 規範動態渲染漢字與上方調符旁註；支援富文本剪貼簿協定（<code>ClipboardItem text/html</code>），一鍵複製可直接貼入 Microsoft Word / LibreOffice 保留精確上方標音。</li>
+            <li><strong>雙模發音架構 (Audio Queue Streaming)</strong>：外接教育部與 ChhoeTaigi 21,700+ 真人錄音 CDN，支援智慧斷詞連續排隊播放（詞間 80ms 擬真自然停頓），並與瀏覽器本機 Web Speech API 語音合成無縫後備切換。</li>
+          </ul>
+        </div>
+
+        <div class="p-3.5 bg-amber-50/70 dark:bg-amber-950/40 rounded-xl border border-amber-200 dark:border-amber-800">
+          <h4 class="font-bold text-amber-800 dark:text-amber-300 mb-1 flex items-center space-x-1.5">
+            <span>🎨 開源母語字型與免 Cookie 流量統計</span>
+          </h4>
+          <ul class="list-disc list-inside text-xs text-slate-600 dark:text-slate-300 space-y-1.5">
+            <li><strong>芫荽體 (Iansui Font)</strong>：字嗨 But Taiwan 基於 Fontworks Klee 與源石黑體修改之開源台客語楷體字型（CC-BY-SA 4.0），支援教育部台語常用字與 Unicode Ext-B 擴充漢字（如 <code>𨑨迌</code>、<code>𤆬</code>、<code>仝</code>）。</li>
+            <li><strong>Charis SIL WebFont</strong>：SIL International 專為語言學與國際音標設計之高品質開源字型，解決調符疊合重疊痛點。</li>
+            <li><strong>hits.sh 流量架構</strong>：採用無 Cookie、注重隱私之即時向量 SVG 計數服務，透明公開全站造訪與使用人次統計。</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Tab Content 3: Tributes & Acknowledgments -->
+      <div id="modal-content-tribute" class="hidden space-y-4 text-sm leading-relaxed">
+        <div class="p-3.5 bg-indigo-50/70 dark:bg-indigo-950/40 rounded-xl border border-indigo-200 dark:border-indigo-800">
+          <h4 class="font-bold text-indigo-700 dark:text-indigo-300 mb-1 flex items-center space-x-1.5">
+            <span>💐 致敬：台語文資訊化與母語數位化的開路先鋒</span>
+          </h4>
+          <p class="text-slate-600 dark:text-slate-300 text-xs">
+            在電腦處理中文字都尚處摸索階段的年代，一群前輩便默默為台語文數位化劈山引水：
+          </p>
+          <ul class="list-disc list-inside text-xs text-slate-600 dark:text-slate-300 mt-2 space-y-1.5">
+            <li><strong>蔡哲民 老師 (tjm)</strong>：信望愛資訊中心專案主持人，研發 CTS 音標轉換演算法、推動台語聖經資訊化，長年無私奉獻開源精神。</li>
+            <li><strong>陳昆池 老師 (Tan Khun-ti)</strong>：主持編審 TWCD 海量漢羅與專有名詞對照庫，奠立民間最大規模詞庫基石。</li>
+            <li><strong>鄭良偉 教授 (Robert L. Cheng)</strong>：早期台語語言學理論與雙語翻譯資訊化先鋒學者。</li>
+            <li><strong>信望愛資訊中心 (FHL) 志工團隊</strong>：數十年如一日維護珍貴母語文史數位資源。</li>
+          </ul>
+        </div>
+
+        <div class="p-3.5 bg-amber-50/70 dark:bg-amber-950/40 rounded-xl border border-amber-200 dark:border-amber-800">
+          <h4 class="font-bold text-amber-800 dark:text-amber-300 mb-1 flex items-center space-x-1.5">
+            <span>💐 致敬：台灣近代醫學現代化與宣教先賢</span>
+          </h4>
+          <p class="text-slate-600 dark:text-slate-300 text-xs">
+            向 <strong>鄭仁壽 先生 (Teh Jîn-siū, 1917)</strong> 及早期台灣基督長老教會醫療宣教前輩致敬。
+          </p>
+          <p class="text-slate-500 dark:text-slate-400 text-xs mt-1">
+            從馬雅各醫師、馬偕博士、甘為霖牧師到巴克禮牧師，先賢以羅馬字白話字出版第一張報紙、建立第一所西醫醫院與護理學校；鄭仁壽前輩編著《內外科看護學》以台語白話字有系統記錄現代醫學，展現台灣母語精確乘載科學新知之深厚底蘊。
+          </p>
+        </div>
+
+        <div class="p-3.5 bg-emerald-50/70 dark:bg-emerald-950/40 rounded-xl border border-emerald-200 dark:border-emerald-800">
+          <h4 class="font-bold text-emerald-700 dark:text-emerald-300 mb-1 flex items-center space-x-1.5">
+            <span>💐 致敬：當代原創文史創作與數位化深耕者</span>
+          </h4>
+          <p class="text-slate-600 dark:text-slate-300 text-xs">
+            特別銘謝 <strong>杜信龍 老師 (Tō͘ Sìn-liông)</strong>：
+          </p>
+          <p class="text-slate-500 dark:text-slate-400 text-xs mt-1">
+            杜信龍老師長年筆耕不輟，創作原創七字仔詩歌長卷《七字孽 chhit-jī-gia̍t》（8,139 詞典藏），撰寫 240 篇《護國 評論集》涵蓋政經、國安防衛與母語復振評論（1,836 詞典藏），並耗費心血數位化輯校百年醫學文獻《內外科看護學》（1,019 詞典藏）。杜老師無私授權本專案集成並以創用 CC 協議開放，使本系統跨越時代隔閡，兼具古典韻味、專業史料與當代公民社會脈動。
+          </p>
+        </div>
+
+        <div class="p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700/60">
+          <h4 class="font-bold text-slate-800 dark:text-slate-200 mb-1 flex items-center space-x-1.5">
+            <span>💐 致敬：開源社群志工與公共文化夥伴</span>
+          </h4>
+          <ul class="list-disc list-inside text-xs text-slate-600 dark:text-slate-300 space-y-1">
+            <li><strong>g0v 零時政府開源社群 & 唐鳳 (Audrey Tang)</strong>：發起並維護「萌典」，以現代 JSON 規範開源台語詞庫。</li>
+            <li><strong>ChhoeTaigi (找台語) 開源團隊</strong>：長年致力於台語辭典開源整合，並無私維護分發 21,700+ 條教育部真人原音 CDN 鏡像。</li>
+            <li><strong>字嗨 But Taiwan 與開源字型開發團隊</strong>：開發「芫荽體 (Iansui)」，為母語文字排版帶來清雅易讀的開源字型。</li>
+            <li><strong>中華民國教育部終身教育司</strong>：建置與持續維護《臺灣台語常用詞辭典》，提供全體國民規範化語料標準。</li>
+          </ul>
+        </div>
+
+        <div class="p-3.5 bg-purple-50/70 dark:bg-purple-950/40 rounded-xl border border-purple-200 dark:border-purple-800">
+          <h4 class="font-bold text-purple-700 dark:text-purple-300 mb-1">💻 Next-Gen 現代化重構團隊承諾</h4>
+          <p class="text-slate-600 dark:text-slate-300 text-xs">
+            本專案團隊懷抱敬畏與感恩之心，秉持「自由、開源、純本機、傳承母語」之核心精神，將二十餘年前由信望愛資訊中心奠基之 TWCD 逆向解構重塑為現代化純前端離線 Web 應用。願這份凝聚眾人智慧的珍貴母語文化資產，在現代瀏覽器與行動裝置中歷久彌新、世代相傳。
           </p>
         </div>
       </div>
@@ -721,8 +862,20 @@
       <div id="modal-content-changelog" class="hidden space-y-3 text-xs leading-relaxed">
         <div class="p-3 bg-indigo-50/70 dark:bg-indigo-950/40 rounded-xl border border-indigo-200 dark:border-indigo-800">
           <div class="flex items-center justify-between font-bold text-indigo-700 dark:text-indigo-300 mb-1">
-            <span>v2.4 (自創台語辭書特藏：杜信龍《七字孽》與鄭仁壽《內外科看護學》整合版)</span>
+            <span>v2.5 (自創台語辭書特藏：杜信龍《護國 評論集》當代政論詞典整合版)</span>
             <span class="text-[10px] text-indigo-500 font-bold">當前版本</span>
+          </div>
+          <ul class="list-disc list-inside space-y-0.5 text-slate-600 dark:text-slate-300">
+            <li><strong>🛡️ 整合杜信龍《護國 評論集》台語詞典</strong>：納入 1,836 條當代政經、國安防衛、公民社會與母語復振評論語彙、精確標音與實務時論例句。</li>
+            <li><strong>🔍 辭典檢索五大體系並陳</strong>：一次搜尋同時對照「教育部萌典」、「杜信龍七字孽」、「杜信龍護國評論集」、「內外科看護學醫學語彙」與「TWCD 經典庫」。</li>
+            <li><strong>➖ 標音連字符全面注入</strong>：政經時論新詞自動納入音節分詞庫與雙向轉換引擎。</li>
+          </ul>
+        </div>
+
+        <div class="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700/60">
+          <div class="flex items-center justify-between font-bold text-slate-700 dark:text-slate-300 mb-1">
+            <span>v2.4 (自創台語辭書特藏：杜信龍《七字孽》與鄭仁壽《內外科看護學》整合版)</span>
+            <span class="text-[10px] text-slate-400">歷程版本</span>
           </div>
           <ul class="list-disc list-inside space-y-0.5 text-slate-600 dark:text-slate-300">
             <li><strong>📜 整合杜信龍《七字孽 chhit-jī-gia̍t》詞典</strong>：納入 8,139 條當代台語詩歌文學詞目、台羅/白話字標音與七字仔韻文詩句語境例句。</li>

@@ -97,7 +97,7 @@
     },
 
     getUserDicts: function () {
-      if (this.userDicts && (Object.keys(this.userDicts.chhitjia || {}).length > 0 || (this.userDicts.laigoakho || []).length > 0)) {
+      if (this.userDicts && (Object.keys(this.userDicts.chhitjia || {}).length > 0 || (this.userDicts.laigoakho || []).length > 0 || Object.keys(this.userDicts.hokkok || {}).length > 0)) {
         return this.userDicts;
       }
       if (typeof window !== 'undefined' && window.USER_DICTS) {
@@ -108,13 +108,13 @@
         this.userDicts = global.USER_DICTS;
         return this.userDicts;
       }
-      return { chhitjia: {}, laigoakho: [] };
+      return { chhitjia: {}, laigoakho: [], hokkok: {} };
     },
 
     queryUserDicts: function (keyword, maxCount = 15) {
-      if (!keyword) return { chhitjia: [], laigoakho: [] };
+      if (!keyword) return { chhitjia: [], laigoakho: [], hokkok: [] };
       const q = keyword.trim().toLowerCase();
-      if (!q) return { chhitjia: [], laigoakho: [] };
+      if (!q) return { chhitjia: [], laigoakho: [], hokkok: [] };
       const uDicts = this.getUserDicts();
 
       // 1. Chhitjia (杜信龍《七字孽》)
@@ -142,7 +142,31 @@
         }
       }
 
-      return { chhitjia: chhitjiaMatches, laigoakho: laigoakhoMatches };
+      // 3. Hokkok (杜信龍《護國 評論集》)
+      const hokkokExact = [];
+      const hokkokStarts = [];
+      const hokkokContains = [];
+      const hokkokSound = [];
+      const hokkokEx = [];
+
+      for (const [word, info] of Object.entries(uDicts.hokkok || {})) {
+        const wLower = word.toLowerCase();
+        const rLower = (info.r || '').toLowerCase();
+        if (wLower === q) {
+          hokkokExact.push({ word, ...info });
+        } else if (wLower.startsWith(q)) {
+          hokkokStarts.push({ word, ...info });
+        } else if (wLower.includes(q)) {
+          hokkokContains.push({ word, ...info });
+        } else if (rLower.includes(q)) {
+          hokkokSound.push({ word, ...info });
+        } else if (info.e && info.e.some(ex => (ex.h && ex.h.toLowerCase().includes(q)) || (ex.t && ex.t.toLowerCase().includes(q)))) {
+          hokkokEx.push({ word, ...info });
+        }
+      }
+      const hokkokMatches = hokkokExact.concat(hokkokStarts, hokkokContains, hokkokSound, hokkokEx).slice(0, maxCount);
+
+      return { chhitjia: chhitjiaMatches, laigoakho: laigoakhoMatches, hokkok: hokkokMatches };
     },
 
     getMoedictData: function () {
@@ -256,9 +280,17 @@
         }
       }
 
-      // 0b. From User Dicts (杜信龍《七字孽》與 鄭仁壽《內外科看護學》)
+      // 0b. From User Dicts (杜信龍《七字孽》、鄭仁壽《內外科看護學》與 杜信龍《護國 評論集》)
       const uDicts = this.getUserDicts();
       for (const [w, info] of Object.entries(uDicts.chhitjia || {})) {
+        if (!info.r || !info.r.includes('-')) continue;
+        const cleanR = info.r.trim();
+        const unhyp = cleanR.replace(/[\s-]/g, '').toLowerCase();
+        if (!map.has(unhyp) && unhyp.length >= 3) {
+          map.set(unhyp, cleanR);
+        }
+      }
+      for (const [w, info] of Object.entries(uDicts.hokkok || {})) {
         if (!info.r || !info.r.includes('-')) continue;
         const cleanR = info.r.trim();
         const unhyp = cleanR.replace(/[\s-]/g, '').toLowerCase();
@@ -393,10 +425,24 @@
         curr.src = word;
       }
 
-      // Priority 1.5: 杜信龍《七字孽》與 鄭仁壽《內外科看護學》特藏詞庫
+      // Priority 1.5: 杜信龍《七字孽》、鄭仁壽《內外科看護學》與 杜信龍《護國 評論集》特藏詞庫
       const uDicts = this.getUserDicts();
       for (const [word, info] of Object.entries(uDicts.chhitjia || {})) {
         if (!info.r) continue;
+        const pojVal = this.ctsConvert(info.r, 'tailo_unicode', 'poj_unicode');
+        let curr = root;
+        for (const ch of word) {
+          if (!curr.next.has(ch)) curr.next.set(ch, this._createTrieNode());
+          curr = curr.next.get(ch);
+        }
+        if (!curr.val) {
+          curr.val = pojVal;
+          curr.src = word;
+        }
+      }
+
+      for (const [word, info] of Object.entries(uDicts.hokkok || {})) {
+        if (!info.r || !/[\u4e00-\u9fa5]/.test(word)) continue;
         const pojVal = this.ctsConvert(info.r, 'tailo_unicode', 'poj_unicode');
         let curr = root;
         for (const ch of word) {

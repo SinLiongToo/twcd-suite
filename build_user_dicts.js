@@ -46,14 +46,38 @@ async function run() {
   console.log('laigoakho entries:', laigoakho.length);
   console.log('Sample laigoakho 0-2:', laigoakho.slice(0, 3));
 
+  console.log('3. Fetching hok_kok_ebook (杜信龍《護國 評論集》)...');
+  const hokkokRaw = await fetch('https://raw.githubusercontent.com/SinLiongToo/hok_kok_ebook/main/dict_data.json').then(r => r.json());
+  console.log('hok_kok raw entries:', Object.keys(hokkokRaw).length);
+
+  const hokkokCompact = {};
+  for (const [w, info] of Object.entries(hokkokRaw)) {
+    const reading = (info.readings || [])[0] || {};
+    const rom = reading.rom || '';
+    const examples = (reading.examples || []).slice(0, 3).map(e => ({
+      t: e.title || '',
+      h: e.han || '',
+      r: e.rom || ''
+    }));
+    hokkokCompact[w] = {
+      r: rom,
+      c: info.total || reading.count || 1,
+      p: !!info.phrase,
+      e: examples
+    };
+  }
+  console.log('Sample hok_kok beh:', hokkokCompact['beh']);
+
   // Save to data/
   fs.writeFileSync('data/chhitjia.json', JSON.stringify(chhitjiaCompact), 'utf8');
   fs.writeFileSync('data/laigoakho.json', JSON.stringify(laigoakho), 'utf8');
+  fs.writeFileSync('data/hokkok.json', JSON.stringify(hokkokCompact), 'utf8');
 
   // Also package as client-side JS bundle
   const bundleJs = `window.USER_DICTS = {
   chhitjia: ${JSON.stringify(chhitjiaCompact)},
-  laigoakho: ${JSON.stringify(laigoakho)}
+  laigoakho: ${JSON.stringify(laigoakho)},
+  hokkok: ${JSON.stringify(hokkokCompact)}
 };\n`;
   fs.writeFileSync('data_user_dicts.js', bundleJs, 'utf8');
   console.log('Generated data_user_dicts.js successfully!');
