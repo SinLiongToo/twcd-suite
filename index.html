@@ -103,16 +103,20 @@
         <div>
           <div class="flex items-center space-x-2">
             <h1 class="text-lg font-bold text-slate-900 dark:text-white tracking-tight">TWCD 台語數位工具箱</h1>
-            <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">Next-Gen v2.0</span>
+            <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">Next-Gen v2.2</span>
           </div>
-          <p class="text-xs text-slate-500 dark:text-slate-400">離線逆向重構 • 華台翻譯 • 漢羅全羅 • Ruby標音 • CTS音標工坊</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400">離線逆向重構 • 華台翻譯 • 漢羅全羅 • Ruby標音 • 教育部真人音檔</p>
         </div>
       </div>
 
       <div class="flex items-center space-x-3">
-        <!-- Ready Badge -->
+        <!-- Ready Badges -->
+        <div class="hidden md:flex items-center space-x-1.5 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-xs text-indigo-700 dark:text-indigo-300">
+          <span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
+          <span>🎙️ 教育部 21,700+ 真人音檔</span>
+        </div>
         <div class="hidden sm:flex items-center space-x-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-700 dark:text-emerald-300">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
           <span>84,000+ 條片語庫就緒</span>
         </div>
 
@@ -355,6 +359,10 @@
           <div class="px-4 py-2.5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-medium">
             <span>Ruby 旁註即時視覺排版</span>
             <div class="flex items-center space-x-2">
+              <button id="ruby-speak-btn" class="hover:text-indigo-600 dark:hover:text-indigo-400 font-medium flex items-center space-x-1" title="聆聽台語發音 (支援教育部真人音檔)">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
+                <span>發音</span>
+              </button>
               <button id="ruby-copy-rich-btn" class="hover:text-indigo-600 dark:hover:text-indigo-400 font-medium flex items-center space-x-1" title="複製富文本，可直接貼到 Word 保留上方標音">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 <span>複製富文本 (Word用)</span>

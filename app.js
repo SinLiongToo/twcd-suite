@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   hgSpeakBtn.addEventListener('click', () => {
     const text = hgOutput.innerText || hgOutput.textContent;
-    speakText(text);
+    toggleSpeech(text, hgSpeakBtn);
   });
 
   // ---------------------------------------------------------------------
@@ -317,7 +317,8 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   hlclSpeakBtn.addEventListener('click', () => {
-    speakText(hlclOutput.value);
+    const text = hlclOutput.value || hlclInput.value;
+    toggleSpeech(text, hlclSpeakBtn);
   });
 
   // ---------------------------------------------------------------------
@@ -407,6 +408,14 @@ document.addEventListener('DOMContentLoaded', function () {
       showToast('富文本複製失敗，請使用 HTML 複製');
     }
   });
+
+  const rubySpeakBtn = document.getElementById('ruby-speak-btn');
+  if (rubySpeakBtn) {
+    rubySpeakBtn.addEventListener('click', () => {
+      const text = rubyInput.value;
+      toggleSpeech(text, rubySpeakBtn);
+    });
+  }
 
   rubyExportHtmlBtn.addEventListener('click', () => {
     const html = rubyPreview.innerHTML;
@@ -570,7 +579,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const hlclCnt = (Engine.data && Engine.data.hl_cl ? Engine.data.hl_cl.length : 0);
     const rubyCnt = (Engine.data && Engine.data.ruby ? Engine.data.ruby.length : 0);
     const notranCnt = (Engine.data && Engine.data.hg_notran ? Engine.data.hg_notran.length : 0);
-    const total = hgCnt + clhlCnt + hlclCnt + rubyCnt;
+    const audioCnt = (Engine.data && Engine.data.audio ? Object.keys(Engine.data.audio).length : 0);
 
     const el = document.getElementById('dict-stats-summary');
     if (el) {
@@ -579,6 +588,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300">全羅轉漢羅：${clhlCnt}</span>
         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300">漢羅轉全羅：${hlclCnt}</span>
         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300">Ruby標音：${rubyCnt}</span>
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-100 text-teal-800 dark:bg-teal-900/50 dark:text-teal-300">🎙️ 教育部真人音檔：${audioCnt}</span>
         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-800 dark:bg-rose-900/50 dark:text-rose-300">不轉詞彙：${notranCnt}</span>
       `;
     }
@@ -591,6 +601,7 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
     const results = [];
+    const audioMap = (Engine.data && Engine.data.audio) || {};
     const hgList = (Engine.data && Engine.data.hg_tg) || [];
     for (let i = 0; i < hgList.length; i++) {
       if (hgList[i].m.includes(q) || hgList[i].t.includes(q)) {
@@ -610,13 +621,36 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
 
-    dictSearchResult.innerHTML = results.map(r => `
-      <div class="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded border border-slate-200 dark:border-slate-700/60 text-sm">
-        <span class="px-2 py-0.5 text-xs font-semibold rounded bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">${r.type}</span>
-        <span class="font-medium text-slate-900 dark:text-slate-100 flex-1 ml-3">${r.src}</span>
-        <span class="text-indigo-600 dark:text-indigo-400 font-serif font-bold">${r.dst}</span>
-      </div>
-    `).join('');
+    dictSearchResult.innerHTML = results.map(r => {
+      const audioId = audioMap[r.src] || audioMap[r.dst];
+      const audioBtn = audioId ? `
+        <button class="play-word-btn ml-2 px-2 py-0.5 text-xs rounded bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950 dark:hover:bg-indigo-900 text-indigo-600 dark:text-indigo-300 font-sans flex items-center space-x-1" data-id="${audioId}" data-word="${r.dst || r.src}" title="聆聽教育部真人發音">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
+          <span>真人發音</span>
+        </button>
+      ` : '';
+      return `
+        <div class="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded border border-slate-200 dark:border-slate-700/60 text-sm">
+          <span class="px-2 py-0.5 text-xs font-semibold rounded bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">${r.type}</span>
+          <span class="font-medium text-slate-900 dark:text-slate-100 flex-1 ml-3">${r.src}</span>
+          <div class="flex items-center">
+            <span class="text-indigo-600 dark:text-indigo-400 font-serif font-bold">${r.dst}</span>
+            ${audioBtn}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  if (dictSearchResult) {
+    dictSearchResult.addEventListener('click', (e) => {
+      const btn = e.target.closest('.play-word-btn');
+      if (btn) {
+        const id = btn.getAttribute('data-id');
+        const word = btn.getAttribute('data-word');
+        TWCD_Audio.playSingle(id, word);
+      }
+    });
   }
 
   if (dictSearchInput) {
@@ -727,27 +761,247 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // ---------------------------------------------------------------------
-  // Web Speech API
+  // Audio Engine: 教育部 / ChhoeTaigi 真人音檔與雙模語音引擎
   // ---------------------------------------------------------------------
-  function speakText(text) {
-    if (!text || !('speechSynthesis' in window)) {
-      showToast('您的瀏覽器不支援語音合成或無內容可播放');
-      return;
+  const TWCD_Audio = {
+    currentAudio: null,
+    isPlaying: false,
+    activeBtn: null,
+    queue: [],
+    queueIndex: 0,
+
+    // Audio CDN URL generators (Primary: ChhoeTaigi Mirror, Fallback: MOE Sutian)
+    getUrls(audioId) {
+      return [
+        `https://chhoetaigi.github.io/KipSutianDataMirror/public/20260503-2330/imtong/sutiau/${audioId}.mp3`,
+        `https://sutian.moe.edu.tw/media/senn/sutiau/${audioId}.mp3`
+      ];
+    },
+
+    stop() {
+      if (this.currentAudio) {
+        this.currentAudio.pause();
+        this.currentAudio.currentTime = 0;
+        this.currentAudio = null;
+      }
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      this.isPlaying = false;
+      this.queue = [];
+      this.queueIndex = 0;
+      if (this.activeBtn) {
+        if (this.activeBtn.dataset.origHtml) {
+          this.activeBtn.innerHTML = this.activeBtn.dataset.origHtml;
+          delete this.activeBtn.dataset.origHtml;
+        }
+        this.activeBtn = null;
+      }
+    },
+
+    setBtnPlaying(btn) {
+      if (!btn) return;
+      if (!btn.dataset.origHtml) {
+        btn.dataset.origHtml = btn.innerHTML;
+      }
+      btn.innerHTML = `
+        <svg class="w-4 h-4 text-rose-500 animate-pulse" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+        <span class="text-rose-600 dark:text-rose-400 font-semibold">停止</span>
+      `;
+      this.activeBtn = btn;
+    },
+
+    restoreBtn() {
+      if (this.activeBtn) {
+        if (this.activeBtn.dataset.origHtml) {
+          this.activeBtn.innerHTML = this.activeBtn.dataset.origHtml;
+          delete this.activeBtn.dataset.origHtml;
+        }
+        this.activeBtn = null;
+      }
+      this.isPlaying = false;
+    },
+
+    playSingle(audioId, word) {
+      this.stop();
+      if (!audioId) {
+        showToast('無對應之真人音檔編號');
+        return;
+      }
+      showToast(`正在播放真人發音：${word || ''}...`);
+      const urls = this.getUrls(audioId);
+      const audio = new Audio();
+      this.currentAudio = audio;
+      this.isPlaying = true;
+
+      let triedFallback = false;
+      audio.src = urls[0];
+      audio.onended = () => {
+        this.stop();
+      };
+      audio.onerror = () => {
+        if (!triedFallback) {
+          triedFallback = true;
+          audio.src = urls[1];
+          audio.play().catch(e => {
+            this.stop();
+            showToast('音檔載入失敗');
+          });
+        } else {
+          this.stop();
+          showToast('音檔載入失敗');
+        }
+      };
+      audio.play().catch(err => {
+        console.warn('Audio play error:', err);
+      });
+    },
+
+    // Tokenize text into indexed audio clips (greedy longest match from 6 down to 1)
+    findClips(text) {
+      const audioMap = (Engine.data && Engine.data.audio) || {};
+      if (!text || Object.keys(audioMap).length === 0) return [];
+      const clean = text.replace(/<[^>]+>/g, '').trim();
+      const clips = [];
+      let i = 0;
+      const maxLen = 6;
+      while (i < clean.length) {
+        const curSub = clean.substring(i);
+        // Skip spaces, punctuation and newlines
+        const skipMatch = curSub.match(/^[\s，。！？、；：「」『』（）\(\)\.,!\?_—\-\n\r\t]+/);
+        if (skipMatch) {
+          i += skipMatch[0].length;
+          continue;
+        }
+        let matched = false;
+        for (let l = Math.min(maxLen, clean.length - i); l >= 1; l--) {
+          const seg = clean.substring(i, i + l);
+          if (audioMap[seg]) {
+            clips.push({ word: seg, id: audioMap[seg] });
+            i += l;
+            matched = true;
+            break;
+          }
+        }
+        if (!matched) {
+          i++;
+        }
+      }
+      return clips;
+    },
+
+    // Dual-mode playback: tries native clips first; if none match, falls back to Web Speech
+    playSentence(text, btn) {
+      if (this.isPlaying) {
+        this.stop();
+        return;
+      }
+      if (!text || !text.trim()) {
+        showToast('請先輸入或生成要發音的內容');
+        return;
+      }
+
+      const clips = this.findClips(text);
+      if (clips.length > 0) {
+        this.isPlaying = true;
+        this.setBtnPlaying(btn);
+        this.queue = clips;
+        this.queueIndex = 0;
+        showToast(`🎙️ 正在播放教育部真人音檔 (${clips.length} 處詞條)...`);
+        this.playNextClip();
+      } else {
+        // Fallback to Web Speech API
+        this.speakWithSpeechSynthesis(text, btn);
+      }
+    },
+
+    playNextClip() {
+      if (!this.isPlaying) return;
+      if (this.queueIndex >= this.queue.length) {
+        this.stop();
+        showToast('播放完成');
+        return;
+      }
+      const item = this.queue[this.queueIndex];
+      const urls = this.getUrls(item.id);
+      const audio = new Audio();
+      this.currentAudio = audio;
+
+      let triedFallback = false;
+      audio.src = urls[0];
+
+      audio.onended = () => {
+        this.queueIndex++;
+        // Small 80ms acoustic pause between words
+        setTimeout(() => this.playNextClip(), 80);
+      };
+
+      audio.onerror = () => {
+        if (!triedFallback) {
+          triedFallback = true;
+          audio.src = urls[1];
+          audio.play().catch(e => {
+            this.queueIndex++;
+            this.playNextClip();
+          });
+        } else {
+          this.queueIndex++;
+          this.playNextClip();
+        }
+      };
+
+      audio.play().catch(err => {
+        console.warn('Playback interrupted or failed:', err);
+        this.queueIndex++;
+        this.playNextClip();
+      });
+    },
+
+    speakWithSpeechSynthesis(text, btn) {
+      if (!('speechSynthesis' in window)) {
+        showToast('您的瀏覽器不支援語音合成');
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const cleanText = text.replace(/<[^>]+>/g, '').replace(/[%\-_]/g, ' ');
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      utterance.lang = 'zh-TW';
+      utterance.rate = 0.95;
+
+      const voices = window.speechSynthesis.getVoices();
+      const twVoice = voices.find(v => v.lang.includes('nan') || v.lang.includes('min') || v.name.includes('Taiwan') || v.lang === 'zh-TW');
+      if (twVoice) utterance.voice = twVoice;
+
+      this.isPlaying = true;
+      this.setBtnPlaying(btn);
+
+      utterance.onend = () => {
+        this.restoreBtn();
+      };
+      utterance.onerror = () => {
+        this.restoreBtn();
+      };
+
+      window.speechSynthesis.speak(utterance);
+      showToast('以系統語音合成朗讀中...');
+    },
+
+    toggle(text, btn) {
+      if (this.isPlaying) {
+        this.stop();
+      } else {
+        this.playSentence(text, btn);
+      }
     }
-    window.speechSynthesis.cancel();
-    const cleanText = text.replace(/<[^>]+>/g, '').replace(/[%\-_]/g, ' ');
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.lang = 'zh-TW';
-    utterance.rate = 0.95;
+  };
 
-    // Pick Hokkien/Taiwanese voice if available
-    const voices = window.speechSynthesis.getVoices();
-    const twVoice = voices.find(v => v.lang.includes('nan') || v.lang.includes('min') || v.name.includes('Taiwan') || v.lang === 'zh-TW');
-    if (twVoice) utterance.voice = twVoice;
-
-    window.speechSynthesis.speak(utterance);
-    showToast('正在朗讀...');
+  function toggleSpeech(text, btn) {
+    TWCD_Audio.toggle(text, btn);
   }
+
+  // Expose to window for external/inline access
+  window.TWCD_Audio = TWCD_Audio;
+  window.toggleSpeech = toggleSpeech;
 
   function debounce(fn, delay) {
     let timer = null;

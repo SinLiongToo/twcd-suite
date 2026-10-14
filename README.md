@@ -6,6 +6,7 @@
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-success?logo=github)](https://sinliongtoo.github.io/twcd-suite/)
 [![Language](https://img.shields.io/badge/Language-JavaScript%20%7C%20HTML5%20%7C%20CSS3-blue)](#)
 [![Data](https://img.shields.io/badge/Dictionary-84%2C000%2B%20Entries-emerald)](#)
+[![Audio](https://img.shields.io/badge/Audio-21%2C700%2B%20Native%20Recordings-red)](#)
 [![Offline](https://img.shields.io/badge/Offline-100%25%20Zero--Dependency-indigo)](#)
 [![License](https://img.shields.io/badge/License-Academic%20%26%20Open%20Source-amber)](#)
 
@@ -31,6 +32,7 @@
 - **三種輸出風格**：漢羅台文、教育部台羅全羅 (Tâi-lô)、白話字教羅全羅 (POJ)。
 - **不轉名單保護**：啟用後自動鎖定「不應轉換詞」，防止專有名詞誤翻。
 - **替換差異高亮**：以黃底標註被替換的詞彙，滑鼠懸停即可查閱原始華語。
+- **🎙️ 教育部真人原音朗讀**：一鍵聆聽道地發音，支援暫停/播放切換。
 
 ### 2. 🔄 漢羅 ⇄ 全羅互轉 (Hàn-lô ⇄ Chôan-lô)
 - **雙向自由切換**：
@@ -42,8 +44,9 @@
 ### 3. 🔤 台語 Ruby 標音排版 (Taigi Ruby Annotator)
 - **HTML5 `<ruby>` 即時排版**：自動為台語漢字加上上方拼音旁註。
 - **樣式自由自訂**：可即時調整拼音大小（0.5em ~ 1.0em）、拼音顏色（可自選主題色）、標調格式（台羅調符、台羅數字調、教羅調符、教羅數字調）。
-- ** Word / LibreOffice 相容複製**：點擊「**複製富文本**」後直接貼到 Microsoft Word 或 Google 文件，**完美保留上方注音排版**！
+- **Word / LibreOffice 相容複製**：點擊「**複製富文本**」後直接貼到 Microsoft Word 或 Google 文件，**完美保留上方注音排版**！
 - **匯出獨立網頁**：一鍵下載漂亮的 `.html` 閱讀文章檔。
+- **同步發音試聽**：排版同時可點擊「發音」聆聽真人語音範讀。
 
 ### 4. ⚙️ 音標編碼工坊 (CTS: Taiwanese & Hakka Phonetics)
 - **六欄即時多向聯動**：
@@ -60,10 +63,26 @@
 - **台客語多重排序 (`sort`)**：支援拼音正序 (A-Z)、反序 (Z-A)、字串長度排序。
 - **詞頻統計分析**：即時分析前 100 名高頻詞項與出現次數。
 
-### 6. 📚 詞典庫檢索與自訂規則 (Dictionary & Custom Rules)
+### 6. 📚 詞典庫檢索與真人語音庫 (Dictionary & Audio)
 - **全庫即時搜尋**：快速檢索 84,000+ 條片語（支援華語、台語、拼音模糊搜尋）。
+- **🔊 真人單詞發音**：檢索結果若收錄於教育部辭典，即刻顯示「真人發音」按鈕，點擊即播。
 - **離線自訂詞庫**：可隨時加入自訂「華台片語」與「強迫不轉詞彙」，自動儲存於瀏覽器 `localStorage`。
 - **詞庫備份還原**：支援將自訂詞典匯出為 `.json` 備份檔，或隨時匯入載入。
+
+---
+
+## 🎙️ 教育部 / ChhoeTaigi 真人原音串流與雙模語音技術
+
+在 **v2.2** 中，本工具整合了**中華民國教育部《臺灣台語常用詞辭典》**與 **ChhoeTaigi (找台語) 開源鏡像庫**，收錄超過 **21,700+ 個詞條** 的專業播音員真人原音檔：
+
+1. **多節點高速 CDN 鏡像與容錯**：
+   - 第一優先節點：`https://chhoetaigi.github.io/KipSutianDataMirror/`（GitHub Pages 高速全球 CDN）
+   - 自動備援節點：`https://sutian.moe.edu.tw/media/senn/`（教育部辭典官方原站）
+2. **長句連續排隊播放 (Audio Queue Sequencing)**：
+   - 系統將句子自動切詞，透過最長匹配找到詞條真人音檔。
+   - 詞與詞之間維持 80ms 擬真自然停頓，提供如真人伴讀般的聽覺體驗。
+3. **無縫雙模自動降級 (Dual-Mode Fallback)**：
+   - 若文本中出現無真人錄音之生僻詞，自動無縫切換至本機 Web Speech API 語音合成，確保**任何字句皆可發音**。
 
 ---
 
@@ -71,7 +90,7 @@
 
 本工具為 **100% 本地純前端運算**，在程式碼層面與架構設計上**未設定任何硬性字數上限**（無 HTML `maxlength` 限制、無後端 API Payload 限制、無網路逾時中斷問題）。
 
-在 v2.1 版本中，核心轉譯引擎全面升級為 **前綴字典樹 (Trie) 貪婪匹配演算法**，比對速度迎來超過 **100 倍** 的效能突破：
+在 v2.1/v2.2 版本中，核心轉譯引擎全面升級為 **前綴字典樹 (Trie) 貪婪匹配演算法**，比對速度迎來超過 **100 倍** 的效能突破：
 
 | 輸入文本規模 | 預期轉換耗時 | 實際使用體驗與最佳實踐 |
 | :--- | :--- | :--- |
@@ -83,7 +102,16 @@
 
 ## 📜 版本演進與變更紀錄 (Changelog)
 
-### **v2.1 (效能飛躍與語言學增強版 - 當前版本)**
+### **v2.2 (教育部 21,700+ 真人原音串流與雙模語音升級版 - 當前版本)**
+- **🎙️ 外接教育部 / ChhoeTaigi 21,700+ 原音音檔**：深度整合教育部辭典與 ChhoeTaigi 鏡像，收錄 21,769 條純正閩南語/台語母語播音員真人原音。
+- **🔄 連續詞句音訊排隊播放 (Audio Queue Engine)**：針對華轉台、漢羅、Ruby 產出的長篇文章，實作詞彙切片與連續無縫播放，字詞間自動加入 80ms 自然音韻停頓。
+- **🔊 雙模發音架構 (Dual-Mode Speech Fallback)**：教育部真人音檔優先，遇到生僻詞或斷網狀態時自動降級呼叫系統 Web Speech API，保證發音不中斷。
+- **⏯️ 播放即時狀態切換 (Toggle Play/Stop)**：所有發音按鈕升級為雙態切換，播放中點擊立即停止，並有動態脈衝指示器。
+- **📚 辭典檢索即點即播**：在辭典庫檢索結果中，直接為收錄之條目提供「真人發音」試聽按鈕。
+
+---
+
+### **v2.1 (效能飛躍與語言學增強版)**
 - **⚡ Trie 字典樹架構 100x 極速突破**：全面淘汰舊版線性陣列比對，改以前綴字典樹（Trie）單趟掃描 $O(M)$ 貪婪最大匹配。15,000 字長文轉譯耗時由 200ms 驟降至 **1.8ms**！
 - **⌨️ 輸入防抖機制 (Debounce 180ms)**：全面導入即時防抖，防止打字每敲一鍵重複觸發 84,000 條全庫運算，大幅釋放 CPU，鍵盤輸入絲滑順暢。
 - **🚀 非同步防凍結架構 (Async Execution)**：引入非同步 Promise 分塊調度與動態「⚡ 運算中...」視覺狀態提示，巨型長文運算期間 UI 介面完全不卡頓。
@@ -142,9 +170,11 @@
 | 檔案路徑 | 角色與功能 |
 | :--- | :--- |
 | [`index.html`](file:///c:/Users/tu-hs/OneDrive/%E6%96%87%E4%BB%B6/2022_0308_MASA/2022-0708/Projects_antigravity/REVERSE_eng_translate_offline/index.html) | 現代化單頁 Web 應用程式（含 6 大操作模組與來源/版本彈窗） |
-| [`app.js`](file:///c:/Users/tu-hs/OneDrive/%E6%96%87%E4%BB%B6/2022_0308_MASA/2022-0708/Projects_antigravity/REVERSE_eng_translate_offline/app.js) | 前端 UI 互動控制器（分頁切換、富文本複製、深淺主題切換） |
+| [`app.js`](file:///c:/Users/tu-hs/OneDrive/%E6%96%87%E4%BB%B6/2022_0308_MASA/2022-0708/Projects_antigravity/REVERSE_eng_translate_offline/app.js) | 前端 UI 互動控制器（分頁切換、富文本複製、深淺主題切換、雙模發音） |
 | [`engine.js`](file:///c:/Users/tu-hs/OneDrive/%E6%96%87%E4%BB%B6/2022_0308_MASA/2022-0708/Projects_antigravity/REVERSE_eng_translate_offline/engine.js) | 核心轉譯引擎（華台、漢羅、全羅、Ruby、CTS 音標轉換與除重排序） |
-| [`data.js`](file:///c:/Users/tu-hs/OneDrive/%E6%96%87%E4%BB%B6/2022_0308_MASA/2022-0708/Projects_antigravity/REVERSE_eng_translate_offline/data.js) | 84,000+ 條字典資料與 CTS 映射打包檔（支援離線直接讀取） |
+| [`data.js`](file:///c:/Users/tu-hs/OneDrive/%E6%96%87%E4%BB%B6/2022_0308_MASA/2022-0708/Projects_antigravity/REVERSE_eng_translate_offline/data.js) | 84,000+ 條字典資料 + 21,700+ 教育部音檔映射（支援離線直接讀取） |
+| `data/audio_map.json` | 教育部 21,769 條字詞與音檔編號映射 JSON |
+| `build_audio_data.py` | 音檔索引與資料庫打包建構腳本 |
 | [`start_app.bat`](file:///c:/Users/tu-hs/OneDrive/%E6%96%87%E4%BB%B6/2022_0308_MASA/2022-0708/Projects_antigravity/REVERSE_eng_translate_offline/start_app.bat) | Windows 快速啟動批次檔 |
 | `twcd/` | 原始舊版 Java/PHP 工具、說明書 PDF 與舊詞庫備份 |
 | `data/` | 預處理之獨立 JSON 字典檔案 |
@@ -157,8 +187,10 @@
    - **信望愛資訊中心 (FHL) 台語文專案團隊**
    - **蔡哲民 老師 (tjm)**（CTS 客語與音標編碼轉換演算法研發者、聖經台文資訊化推手）
    - **陳昆池 老師 (Tan Khun-ti)**（CL_HL / HL_CL 龐大漢羅與專有名詞片語庫編審者）
-2. **正字擴充規範**：
-   - 中華民國教育部《臺灣台語常用詞辭典》（臺灣閩南語常用詞辭典）標準推薦字
+2. **正字擴充規範與語音資料**：
+   - 中華民國教育部《臺灣台語常用詞辭典》（臺灣閩南語常用詞辭典）標準推薦字與真人發音音檔
    - 中華民國教育部《臺灣閩南語羅馬字拼音方案》(Tâi-lô)
+   - **ChhoeTaigi (找台語) 開源社群**（KipSutianData / KipSutianDataMirror 原音 CDN 鏡像維護）
 3. **Next-Gen 重構維護**：
    - 現代化 AI 軟體工程團隊逆向工程重製，秉持母語數位化開源傳承精神。
+
