@@ -86,8 +86,55 @@
       if (global.TWCD_DATA) {
         this.data = global.TWCD_DATA;
       }
+      if (global.MOEDICT_DATA) {
+        this.moedict = global.MOEDICT_DATA;
+      }
       this.loadCustomFromStorage();
       this.buildCharFallback();
+    },
+
+    getMoedictData: function () {
+      if (this.moedict && Object.keys(this.moedict).length > 0) return this.moedict;
+      if (typeof window !== 'undefined' && window.MOEDICT_DATA) {
+        this.moedict = window.MOEDICT_DATA;
+        return this.moedict;
+      }
+      if (typeof global !== 'undefined' && global.MOEDICT_DATA) {
+        this.moedict = global.MOEDICT_DATA;
+        return this.moedict;
+      }
+      return {};
+    },
+
+    queryMoedict: function (keyword, maxCount = 20) {
+      if (!keyword) return [];
+      const q = keyword.trim().toLowerCase();
+      if (!q) return [];
+      const dict = this.getMoedictData();
+      const exact = [];
+      const starts = [];
+      const contains = [];
+      const soundMatches = [];
+      const defMatches = [];
+
+      for (const [word, info] of Object.entries(dict)) {
+        const wLower = word.toLowerCase();
+        const tLower = (info.t || '').toLowerCase();
+        if (wLower === q) {
+          exact.push({ word, ...info });
+        } else if (wLower.startsWith(q)) {
+          starts.push({ word, ...info });
+        } else if (wLower.includes(q)) {
+          contains.push({ word, ...info });
+        } else if (tLower.includes(q)) {
+          soundMatches.push({ word, ...info });
+        } else if (info.d && info.d.some(x => (x.d && x.d.toLowerCase().includes(q)) || (x.e && x.e.some(ex => (ex.m && ex.m.toLowerCase().includes(q)))))) {
+          defMatches.push({ word, ...info });
+        }
+      }
+
+      const combined = exact.concat(starts, contains, soundMatches, defMatches);
+      return combined.slice(0, maxCount);
     },
 
     clearTrieCache: function () {
@@ -135,6 +182,27 @@
     buildHyphenMap: function () {
       if (this._hyphenMap) return this._hyphenMap;
       const map = new Map();
+
+      // 0. From Moedict (20,600+ words with official MOE hyphens)
+      const moedict = this.getMoedictData();
+      for (const [w, info] of Object.entries(moedict)) {
+        if (!info.t || !info.t.includes('-')) continue;
+        const readings = info.t.split('/');
+        for (let r = 0; r < readings.length; r++) {
+          const cleanR = readings[r].trim();
+          if (cleanR.includes('-') && !cleanR.startsWith('-') && !cleanR.endsWith('-')) {
+            const convPoj = this.ctsConvert(cleanR, 'tailo_unicode', 'poj_unicode');
+            const unhypPoj = convPoj.replace(/[\s-]/g, '').toLowerCase();
+            if (!map.has(unhypPoj) && unhypPoj.length >= 3) {
+              map.set(unhypPoj, convPoj);
+            }
+            const unhypTl = cleanR.replace(/[\s-]/g, '').toLowerCase();
+            if (!map.has(unhypTl) && unhypTl.length >= 3) {
+              map.set(unhypTl, cleanR);
+            }
+          }
+        }
+      }
 
       // 1. From CL_HL (26,580 entries with hyphens)
       const clList = (this.custom.cl_hl || []).concat((this.data && this.data.cl_hl) || []);
@@ -235,7 +303,25 @@
     getHlClTrie: function () {
       if (this._tries.hl_cl) return this._tries.hl_cl;
       const root = this._createTrieNode();
-      const dictList = (this.custom.hl_cl || []).concat((this.data && this.data.hl_cl) || []);
+
+      // Priority 1: 教育部 / 萌典標準詞庫 (MOE / Moedict First: Standard Hyphens & Recommended Characters)
+      const moedict = this.getMoedictData();
+      for (const [word, info] of Object.entries(moedict)) {
+        if (!info.t) continue;
+        const rawTrs = info.t.split('/')[0].trim();
+        if (!rawTrs) continue;
+        const pojVal = this.ctsConvert(rawTrs, 'tailo_unicode', 'poj_unicode');
+        let curr = root;
+        for (const ch of word) {
+          if (!curr.next.has(ch)) curr.next.set(ch, this._createTrieNode());
+          curr = curr.next.get(ch);
+        }
+        curr.val = pojVal;
+        curr.src = word;
+      }
+
+      // Priority 2: TWCD 經典庫補充 (TWCD Fallback: Fills entries not present in Moedict)
+      const dictList = (this.data && this.data.hl_cl) || [];
       for (let i = 0; i < dictList.length; i++) {
         const entry = dictList[i];
         const h = entry.h;
@@ -251,6 +337,23 @@
           curr.src = h;
         }
       }
+
+      // Priority 0: 使用者自訂規則 (Custom rules always override both)
+      const customList = this.custom.hl_cl || [];
+      for (let i = 0; i < customList.length; i++) {
+        const entry = customList[i];
+        const h = entry.h;
+        const c = entry.c;
+        if (!h || !c) continue;
+        let curr = root;
+        for (const ch of h) {
+          if (!curr.next.has(ch)) curr.next.set(ch, this._createTrieNode());
+          curr = curr.next.get(ch);
+        }
+        curr.val = c;
+        curr.src = h;
+      }
+
       this._tries.hl_cl = root;
       return root;
     },
@@ -954,7 +1057,8 @@
   if (typeof window !== 'undefined') {
     window.TWCD_Engine = Engine;
     Engine.init();
-  } else if (typeof module !== 'undefined' && module.exports) {
+  }
+  if (typeof module !== 'undefined' && module.exports) {
     module.exports = Engine;
   }
 })(typeof window !== 'undefined' ? window : global);

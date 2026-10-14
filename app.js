@@ -586,15 +586,17 @@ document.addEventListener('DOMContentLoaded', function () {
     const rubyCnt = (Engine.data && Engine.data.ruby ? Engine.data.ruby.length : 0);
     const notranCnt = (Engine.data && Engine.data.hg_notran ? Engine.data.hg_notran.length : 0);
     const audioCnt = (Engine.data && Engine.data.audio ? Object.keys(Engine.data.audio).length : 0);
+    const moedictCnt = Object.keys(Engine.getMoedictData()).length;
 
     const el = document.getElementById('dict-stats-summary');
     if (el) {
       el.innerHTML = `
-        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300">華台詞條：${hgCnt}</span>
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-200">🏛️ 教育部/萌典：${moedictCnt || 20604} 詞 (含釋義例句)</span>
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-100 text-teal-800 dark:bg-teal-900/50 dark:text-teal-300">🎙️ 教育部真人音檔：${audioCnt}</span>
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300">華台片語：${hgCnt}</span>
         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300">全羅轉漢羅：${clhlCnt}</span>
         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300">漢羅轉全羅：${hlclCnt}</span>
         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300">Ruby標音：${rubyCnt}</span>
-        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-100 text-teal-800 dark:bg-teal-900/50 dark:text-teal-300">🎙️ 教育部真人音檔：${audioCnt}</span>
         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-800 dark:bg-rose-900/50 dark:text-rose-300">不轉詞彙：${notranCnt}</span>
       `;
     }
@@ -606,46 +608,136 @@ document.addEventListener('DOMContentLoaded', function () {
       dictSearchResult.innerHTML = '<div class="text-sm text-slate-400 p-4 text-center">請在上方輸入關鍵字查詢辭典庫...</div>';
       return;
     }
-    const results = [];
+
     const audioMap = (Engine.data && Engine.data.audio) || {};
+
+    // 1. Priority 1: 教育部 / 萌典辭典 (MOE / Moedict)
+    const moeResults = Engine.queryMoedict(q, 15);
+
+    // 2. Priority 2: TWCD 經典庫 (TWCD Classical Corpus)
+    const twcdResults = [];
     const hgList = (Engine.data && Engine.data.hg_tg) || [];
     for (let i = 0; i < hgList.length; i++) {
       if (hgList[i].m.includes(q) || hgList[i].t.includes(q)) {
-        results.push({ type: '華台', src: hgList[i].m, dst: hgList[i].t });
-        if (results.length >= 50) break;
+        twcdResults.push({ type: '華台片語', src: hgList[i].m, dst: hgList[i].t });
+        if (twcdResults.length >= 30) break;
       }
     }
     const hlList = (Engine.data && Engine.data.hl_cl) || [];
-    for (let i = 0; i < hlList.length && results.length < 50; i++) {
+    for (let i = 0; i < hlList.length && twcdResults.length < 50; i++) {
       if (hlList[i].h.includes(q) || hlList[i].c.toLowerCase().includes(q)) {
-        results.push({ type: '漢羅/全羅', src: hlList[i].h, dst: hlList[i].c });
+        twcdResults.push({ type: '漢羅/全羅', src: hlList[i].h, dst: hlList[i].c });
       }
     }
 
-    if (results.length === 0) {
-      dictSearchResult.innerHTML = `<div class="text-sm text-slate-400 p-4 text-center">找不到包含「${q}」的詞條</div>`;
+    if (moeResults.length === 0 && twcdResults.length === 0) {
+      dictSearchResult.innerHTML = `<div class="text-sm text-slate-400 p-8 text-center bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-800">找不到包含「${q}」的詞條</div>`;
       return;
     }
 
-    dictSearchResult.innerHTML = results.map(r => {
-      const audioId = audioMap[r.src] || audioMap[r.dst];
-      const audioBtn = audioId ? `
-        <button class="play-word-btn ml-2 px-2 py-0.5 text-xs rounded bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950 dark:hover:bg-indigo-900 text-indigo-600 dark:text-indigo-300 font-sans flex items-center space-x-1" data-id="${audioId}" data-word="${r.dst || r.src}" title="聆聽教育部真人發音">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
-          <span>真人發音</span>
-        </button>
-      ` : '';
-      return `
-        <div class="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded border border-slate-200 dark:border-slate-700/60 text-sm">
-          <span class="px-2 py-0.5 text-xs font-semibold rounded bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">${r.type}</span>
-          <span class="font-medium text-slate-900 dark:text-slate-100 flex-1 ml-3">${r.src}</span>
-          <div class="flex items-center">
-            <span class="text-indigo-600 dark:text-indigo-400 font-serif font-bold">${r.dst}</span>
-            ${audioBtn}
+    let html = '';
+
+    // Render Moedict Results First (Priority 1)
+    if (moeResults.length > 0) {
+      html += `
+        <div class="mb-5">
+          <div class="flex items-center justify-between mb-2 pb-1 border-b border-indigo-200 dark:border-indigo-900/50">
+            <h4 class="text-xs font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider flex items-center space-x-1.5">
+              <span>🏛️ 教育部臺灣台語常用詞辭典 / 萌典（官方標準優先）</span>
+              <span class="px-2 py-0.5 text-[10px] bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-200 rounded-full font-sans">${moeResults.length} 筆</span>
+            </h4>
+          </div>
+          <div class="space-y-3">
+            ${moeResults.map(item => {
+              const audioId = item.a || audioMap[item.word];
+              const audioBtn = audioId ? `
+                <button class="play-word-btn px-2.5 py-1 text-xs rounded-md bg-indigo-600 hover:bg-indigo-700 text-white font-sans flex items-center space-x-1 shadow-xs transition" data-id="${audioId}" data-word="${item.word}" title="聆聽教育部母語播音員真人發音">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
+                  <span>真人發音</span>
+                </button>
+              ` : '';
+
+              const defsHtml = (item.d || []).map((def) => {
+                const typeBadge = def.t ? `<span class="px-1.5 py-0.5 text-[10px] font-bold rounded bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 mr-1.5">${def.t}</span>` : '';
+                const examplesHtml = (def.e || []).map(ex => `
+                  <div class="mt-1 pl-2.5 border-l-2 border-indigo-200 dark:border-indigo-800 text-xs space-y-0.5">
+                    <div class="font-medium text-slate-800 dark:text-slate-200">${ex.h || ''}</div>
+                    ${ex.r ? `<div class="font-mono text-indigo-600 dark:text-indigo-400 text-[11px]">${ex.r}</div>` : ''}
+                    ${ex.m ? `<div class="text-slate-500 dark:text-slate-400 text-[11px]">華語：${ex.m}</div>` : ''}
+                  </div>
+                `).join('');
+
+                return `
+                  <div class="text-xs">
+                    <div class="text-slate-700 dark:text-slate-300 leading-relaxed">${typeBadge}${def.d || ''}</div>
+                    ${examplesHtml}
+                  </div>
+                `;
+              }).join('<div class="my-1.5 border-t border-slate-100 dark:border-slate-800"></div>');
+
+              return `
+                <div class="p-3.5 bg-indigo-50/40 dark:bg-slate-800/80 rounded-xl border border-indigo-100 dark:border-indigo-900/40 shadow-xs">
+                  <div class="flex items-start justify-between gap-2 mb-2 pb-2 border-b border-indigo-100/60 dark:border-indigo-900/30">
+                    <div>
+                      <div class="flex items-baseline space-x-2">
+                        <span class="text-lg font-bold font-serif text-slate-900 dark:text-white">${item.word}</span>
+                        <span class="text-sm font-mono font-medium text-indigo-600 dark:text-indigo-400">${item.t || ''}</span>
+                      </div>
+                    </div>
+                    <div class="flex items-center space-x-2 shrink-0">
+                      ${audioBtn}
+                      <a href="https://www.moedict.tw/'${encodeURIComponent(item.word)}" target="_blank" rel="noopener noreferrer" class="px-2 py-1 text-xs text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-300 transition" title="前往萌典官方網頁查看">
+                        萌典 ↗
+                      </a>
+                    </div>
+                  </div>
+                  <div class="space-y-2">
+                    ${defsHtml}
+                  </div>
+                </div>
+              `;
+            }).join('')}
           </div>
         </div>
       `;
-    }).join('');
+    }
+
+    // Render TWCD Classical Results (Priority 2)
+    if (twcdResults.length > 0) {
+      html += `
+        <div>
+          <div class="flex items-center justify-between mb-2 pb-1 border-b border-slate-200 dark:border-slate-800">
+            <h4 class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider flex items-center space-x-1.5">
+              <span>🏛️ TWCD 經典對照片語庫（民間文獻與語料補充）</span>
+              <span class="px-2 py-0.5 text-[10px] bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-full font-sans">${twcdResults.length} 筆</span>
+            </h4>
+          </div>
+          <div class="space-y-1.5">
+            ${twcdResults.map(r => {
+              const audioId = audioMap[r.src] || audioMap[r.dst];
+              const audioBtn = audioId ? `
+                <button class="play-word-btn ml-2 px-2 py-0.5 text-xs rounded bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950 dark:hover:bg-indigo-900 text-indigo-600 dark:text-indigo-300 font-sans flex items-center space-x-1" data-id="${audioId}" data-word="${r.dst || r.src}" title="聆聽教育部真人發音">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
+                  <span>真人發音</span>
+                </button>
+              ` : '';
+              return `
+                <div class="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded border border-slate-200 dark:border-slate-700/60 text-sm">
+                  <span class="px-2 py-0.5 text-xs font-semibold rounded bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">${r.type}</span>
+                  <span class="font-medium text-slate-900 dark:text-slate-100 flex-1 ml-3">${r.src}</span>
+                  <div class="flex items-center">
+                    <span class="text-indigo-600 dark:text-indigo-400 font-serif font-bold">${r.dst}</span>
+                    ${audioBtn}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    dictSearchResult.innerHTML = html;
   }
 
   if (dictSearchResult) {
