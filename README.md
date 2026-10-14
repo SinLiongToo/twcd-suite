@@ -7,6 +7,7 @@
 [![Language](https://img.shields.io/badge/Language-JavaScript%20%7C%20HTML5%20%7C%20CSS3-blue)](#)
 [![Data](https://img.shields.io/badge/Dictionary-113%2C000%2B%20Entries-emerald)](#)
 [![Audio](https://img.shields.io/badge/Audio-21%2C700%2B%20Native%20Recordings-red)](#)
+[![Visitors](https://hits.sh/sinliongtoo.github.io/twcd-suite.svg?view=today-total&style=flat-square&label=%E4%BD%BF%E7%94%A8%E4%BA%BA%E6%AC%A1&color=4f46e5)](https://hits.sh/sinliongtoo.github.io/twcd-suite/)
 [![Updated](https://img.shields.io/badge/Updated-2026--10--14-blue)](#)
 [![Offline](https://img.shields.io/badge/Offline-100%25%20Zero--Dependency-indigo)](#)
 [![License](https://img.shields.io/badge/License-Academic%20%26%20Open%20Source-amber)](#)
