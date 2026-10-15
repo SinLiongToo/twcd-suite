@@ -109,6 +109,31 @@ flowchart TD
 - **五大體系並陳 (Search Multi-Presentation)**：
   在「辭典庫檢索」功能中，當使用者查詢單字或詞彙時，**官方標準、文學特藏、政論時事、醫學專門與民間經典五者並陳展示**：頂部卡片詳細展示教育部萌典的詞性、白話釋義、3 語例句與真人原音；接著依序展示《七字孽》的詩歌例句卡片、《護國 評論集》的政論時事例句卡片與《內外科看護學》的三語對照卡片；下方緊接著條列 TWCD 經典對照。
 
+### 4. 自創特藏詞庫整合與離線資料庫生成機制 (Custom Corpus Integration & Pipeline)
+
+本專案收錄之杜信龍老師原創專著與百年醫學文獻（共 10,994 條詞目），**並非 AI 杜撰，而是直接對接作者杜信龍老師在 GitHub 上已發布的結構化原始資料庫**，透過自動化腳本進行清洗、萃取、壓縮與離線化封裝：
+
+#### 1. 原始資料來源對接
+- **杜信龍《七字孽 chhit-jī-gia̍t》詞典 (8,139 詞)**：
+  直接讀取 [`SinLiongToo/CHHITJIA_JITIAN`](https://github.com/SinLiongToo/CHHITJIA_JITIAN) 倉庫 `index.html` 內嵌之 `<script id="dict-data" type="application/json">` 原生 JSON 資料，包含台語漢字、羅馬拼音、韻腳與七字仔詩歌例句。
+- **杜信龍《護國 評論集（台-華）》詞典 (1,836 詞)**：
+  直接讀取 [`SinLiongToo/hok_kok_ebook`](https://github.com/SinLiongToo/hok_kok_ebook) 倉庫根目錄之 `dict_data.json` 原生結構化詞庫，包含 240 篇政經國安專欄之當代語料、詞頻統計 (`count`)、片語註記與實務時論例句。
+- **鄭仁壽《內外科看護學》(1917) 醫學語彙 (1,019 詞)**：
+  直接讀取 [`SinLiongToo/laigoakho_Tejinsiu_ebook`](https://github.com/SinLiongToo/laigoakho_Tejinsiu_ebook) 中數位化校注之 Markdown 語彙表（`medical_glossary.md`），包含白話字 (POJ)、漢字、英語三語對照與解剖、病理醫學註釋。
+
+#### 2. 資料庫輕量化抽取與離線打包工程 (`build_user_dicts.js`)
+由於原始線上檔案格式各異（嵌入式 HTML、巨型完整 JSON、Markdown 表格），且帶有全文排版專用之複雜欄位，本專案設計了自動化整合腳本 [`build_user_dicts.js`](file:///c:/Users/tu-hs/OneDrive/%E6%96%87%E4%BB%B6/2022_0308_MASA/2022-0708/Projects_antigravity/REVERSE_eng_translate_offline/build_user_dicts.js)：
+- **欄位精萃與體積精簡 (Compaction)**：萃取關鍵屬性（詞目 `word`、標音 `r`、出現頻率 `c`、精選例句 `e`），去除冗餘排版結構，大幅降低記憶體負擔。
+- **純前端離線 JS 打包**：將 10,994 條詞彙打包成獨立的 [`data_user_dicts.js`](file:///c:/Users/tu-hs/OneDrive/%E6%96%87%E4%BB%B6/2022_0308_MASA/2022-0708/Projects_antigravity/REVERSE_eng_translate_offline/data_user_dicts.js)，使使用者在完全無網路的離線環境下，瀏覽器也能毫秒級載入查詢。
+- **注入雙向轉換與連字符引擎**：自動將詞目納入 [`engine.js`](file:///c:/Users/tu-hs/OneDrive/%E6%96%87%E4%BB%B6/2022_0308_MASA/2022-0708/Projects_antigravity/REVERSE_eng_translate_offline/engine.js) 決策樹，作為官方標準與民間經典之間的專業中繼詞庫，並提供音節連字符分詞支持。
+
+#### 3. 自動化同步更新指南
+未來若作者在《七字孽》或《護國 評論集》的 GitHub 倉庫增修詞目或調整例句，本專案僅需在終端機執行：
+```bash
+node build_user_dicts.js
+```
+腳本即會全自動自遠端拉取最新資料、執行輕量化打包並覆寫產出最新的 `data_user_dicts.js` 與 `data/` 下各 JSON 檔案，完成一鍵全自動字典更新與整合！
+
 ---
 
 ## 🌟 六大核心功能指南
