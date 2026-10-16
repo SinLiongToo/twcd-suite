@@ -20,7 +20,18 @@
       if (!val) continue;
       rev[val] = key;
     }
+    // Also support decomposed Unicode variants
+    for (const [val, key] of Object.entries(rev)) {
+      const decomp = val.normalize('NFD');
+      if (decomp !== val && !rev[decomp]) {
+        rev[decomp] = key;
+      }
+    }
     return rev;
+  }
+
+  function getSortedEntries(rev) {
+    return Object.entries(rev).sort((a, b) => b[0].length - a[0].length);
   }
 
   const REV_TAILO = buildReverseMap(MAP_TAILO);
@@ -28,26 +39,24 @@
   const REV_TP = buildReverseMap(MAP_TP);
   const REV_HOTSYS = buildReverseMap(MAP_HOTSYS);
 
-  // Vowel sonority weights for placing tone marks:
-  // a (10) > ou/oo (8) > e (6) > o (4) > i / u
-  const TAI_LO_WEIGHT = {
-    a: 10, A: 10,
-    oo: 8, Oo: 8, OO: 8,
-    ou: 8, Ou: 8, OU: 8,
-    e: 6, E: 6,
-    o: 4, O: 4,
-    i: 3, I: 3,
-    u: 2, U: 2
-  };
+  const SORTED_REV_TAILO = getSortedEntries(REV_TAILO);
+  const SORTED_REV_UTF8 = getSortedEntries(REV_UTF8);
+  const SORTED_REV_TP = getSortedEntries(REV_TP);
+  const SORTED_REV_HOTSYS = getSortedEntries(REV_HOTSYS);
 
-  const POJ_WEIGHT = {
-    a: 10, A: 10,
-    ou: 8, Ou: 8, OU: 8,
-    e: 6, E: 6,
-    o: 4, O: 4,
-    u: 3, U: 3,
-    i: 2, I: 2
-  };
+  // Move any tone digit (2-9) inside a syllable to the end of that syllable
+  const MOVE_TONE_REGEX = /([a-zA-Z\u00C0-\u024F\u0300-\u036F\u207Fⁿ]*?)([235789])([a-zA-Z\u00C0-\u024F\u0300-\u036F\u207Fⁿ]+)/g;
+
+  function fixTonePosition(text) {
+    if (!text) return '';
+    let prev;
+    let curr = text;
+    do {
+      prev = curr;
+      curr = curr.replace(MOVE_TONE_REGEX, '$1$3$2');
+    } while (curr !== prev);
+    return curr;
+  }
 
   // Tone diacritic marks in Unicode
   const TONE_MARKS_TAILO = {
@@ -1518,7 +1527,6 @@
     // ----------------------------------------------------
     ctsConvert: function (text, fromType, toType) {
       if (!text) return '';
-      if (fromType === toType) return text;
 
       // Step 1: Normalize input to numbered format
       let numText = this.toNumbered(text, fromType);
@@ -1528,14 +1536,15 @@
     },
 
     toNumbered: function (text, fromType) {
+      if (!text) return '';
       if (fromType === 'tailo_num' || fromType === 'poj_num') {
         return text;
       }
 
-      let res = text;
+      let res = text.normalize('NFC');
 
       if (fromType === 'tailo_unicode') {
-        for (const [mark, numKey] of Object.entries(REV_TAILO)) {
+        for (const [mark, numKey] of SORTED_REV_TAILO) {
           if (res.includes(mark)) {
             const letter = numKey.slice(0, -1);
             const tone = numKey.slice(-1);
@@ -1543,7 +1552,7 @@
           }
         }
       } else if (fromType === 'poj_unicode') {
-        for (const [mark, numKey] of Object.entries(REV_UTF8)) {
+        for (const [mark, numKey] of SORTED_REV_UTF8) {
           if (res.includes(mark)) {
             const letter = numKey.slice(0, -1);
             const tone = numKey.slice(-1);
@@ -1551,7 +1560,7 @@
           }
         }
       } else if (fromType === 'tp') {
-        for (const [mark, numKey] of Object.entries(REV_TP)) {
+        for (const [mark, numKey] of SORTED_REV_TP) {
           if (res.includes(mark)) {
             const letter = numKey.slice(0, -1);
             const tone = numKey.slice(-1);
@@ -1559,7 +1568,7 @@
           }
         }
       } else if (fromType === 'hotsys') {
-        for (const [mark, numKey] of Object.entries(REV_HOTSYS)) {
+        for (const [mark, numKey] of SORTED_REV_HOTSYS) {
           if (res.includes(mark)) {
             const letter = numKey.slice(0, -1);
             const tone = numKey.slice(-1);
@@ -1568,10 +1577,11 @@
         }
       }
 
-      return res;
+      return fixTonePosition(res);
     },
 
     fromNumbered: function (text, toType) {
+      if (!text) return '';
       if (toType === 'tailo_num') {
         return this.cl2tl(text);
       }
@@ -1579,12 +1589,14 @@
         return this.tl2cl(text);
       }
 
-      const syllableRegex = /([a-zA-Z\u00C0-\u024F\u0300-\u036F]+)([1-9]?)/g;
+      const syllableRegex = /([a-zA-Z\u00C0-\u024F\u0300-\u036F\u207Fⁿ]+)([1-9]?)/g;
 
       return text.replace(syllableRegex, (match, body, tone) => {
         if (!tone || tone === '1' || tone === '4') {
           if (toType === 'tailo_unicode') return this.cl2tl(body);
-          if (toType === 'poj_unicode') return this.tl2cl(body);
+          if (toType === 'poj_unicode') {
+            return this.tl2cl(body).replace(/ou/g, 'o͘').replace(/Ou/g, 'O͘').replace(/OU/g, 'O͘');
+          }
           return body;
         }
 
@@ -1609,30 +1621,142 @@
           }
         }
 
-        const mapKey = char + tone;
-        if (map[mapKey]) {
-          return normBody.slice(0, vowelIdx) + map[mapKey] + normBody.slice(vowelIdx + 1);
+        if (doubleKey === 'ou' && !isTaiLo) {
+          const prefix = (char === 'O' ? (nextChar === 'U' ? 'OU' : 'Ou') : 'ou');
+          const mapKey = prefix + tone;
+          if (map[mapKey]) {
+            return normBody.slice(0, vowelIdx) + map[mapKey] + normBody.slice(vowelIdx + 2);
+          }
         }
 
-        const mark = TONE_MARKS_TAILO[tone] || '';
-        return normBody.slice(0, vowelIdx + 1) + mark + normBody.slice(vowelIdx + 1);
+        const mapKey = char + tone;
+        let resSyl = '';
+        if (map[mapKey]) {
+          resSyl = normBody.slice(0, vowelIdx) + map[mapKey] + normBody.slice(vowelIdx + 1);
+        } else {
+          const mark = TONE_MARKS_TAILO[tone] || '';
+          resSyl = normBody.slice(0, vowelIdx + 1) + mark + normBody.slice(vowelIdx + 1);
+        }
+
+        if (!isTaiLo) {
+          resSyl = resSyl.replace(/ou/g, 'o͘').replace(/Ou/g, 'O͘').replace(/OU/g, 'O͘');
+        }
+
+        return resSyl;
       });
     },
 
     findToneVowelIndex: function (syllable, isTaiLo) {
-      const weights = isTaiLo ? TAI_LO_WEIGHT : POJ_WEIGHT;
-      let highestWeight = -1;
-      let targetIdx = -1;
+      const sylLower = syllable.toLowerCase();
 
-      for (let i = 0; i < syllable.length; i++) {
-        const ch = syllable[i];
-        const w = weights[ch] || -1;
-        if (w > highestWeight) {
-          highestWeight = w;
-          targetIdx = i;
+      if (isTaiLo) {
+        // ---------------------------------------------
+        // Tâi-lô (臺羅) Official MOE Rules:
+        // 1. a > oo > e > o
+        // 2. iu -> mark on 'u' (second letter)
+        // 3. ui -> mark on 'i' (second letter)
+        // 4. Syllabic consonants: ng (on 'n'), m (on 'm')
+        // ---------------------------------------------
+        const aIdx = sylLower.indexOf('a');
+        if (aIdx !== -1) return aIdx;
+
+        const ooIdx = sylLower.indexOf('oo');
+        if (ooIdx !== -1) return ooIdx;
+
+        const eIdx = sylLower.indexOf('e');
+        if (eIdx !== -1) return eIdx;
+
+        const oIdx = sylLower.indexOf('o');
+        if (oIdx !== -1) return oIdx;
+
+        const iuIdx = sylLower.indexOf('iu');
+        if (iuIdx !== -1) return iuIdx + 1;
+
+        const uiIdx = sylLower.indexOf('ui');
+        if (uiIdx !== -1) return uiIdx + 1;
+
+        const iIdx = sylLower.indexOf('i');
+        if (iIdx !== -1) return iIdx;
+
+        const uIdx = sylLower.indexOf('u');
+        if (uIdx !== -1) return uIdx;
+
+        const ngIdx = sylLower.indexOf('ng');
+        if (ngIdx !== -1) return ngIdx;
+
+        const mIdx = sylLower.indexOf('m');
+        if (mIdx !== -1) return mIdx;
+
+        return -1;
+      } else {
+        // ---------------------------------------------
+        // 白話字 (POJ / Pe̍h-ōe-jī) Standard Rules:
+        // Priority: o > e > a > u > i > ng > m
+        // Exceptions:
+        // 1. oe -> mark on 'o' (e.g. óe, òe, ôe, ōe, o̍e)
+        //    Exception: oeh -> mark on 'e' (e.g. oe̍h)
+        // 2. oa -> mark on 'o' (e.g. góa, tōa, phòa, khòaⁿ, óaⁿ)
+        //    Exception: oai, oan, oat, oah, oang -> mark on 'a' (e.g. oán, oát, oa̍h, oái)
+        // 3. ui -> mark on 'u' (u > i, e.g. kùi, chhùi, ūi)
+        // 4. iu -> mark on 'u' (u > i, e.g. chhiú, iú)
+        // 5. ou (o͘) -> mark on 'o'
+        // ---------------------------------------------
+        const oehIdx = sylLower.indexOf('oeh');
+        if (oehIdx !== -1) {
+          return oehIdx + 1; // mark on 'e'
         }
+
+        const oeIdx = sylLower.indexOf('oe');
+        if (oeIdx !== -1) {
+          return oeIdx; // mark on 'o'
+        }
+
+        // oa exceptions: oai, oan, oat, oah, oang -> mark on 'a'
+        const oaiIdx = sylLower.indexOf('oai');
+        if (oaiIdx !== -1) return oaiIdx + 1;
+
+        const oanIdx = sylLower.indexOf('oan');
+        if (oanIdx !== -1) return oanIdx + 1;
+
+        const oatIdx = sylLower.indexOf('oat');
+        if (oatIdx !== -1) return oatIdx + 1;
+
+        const oahIdx = sylLower.indexOf('oah');
+        if (oahIdx !== -1) return oahIdx + 1;
+
+        const oangIdx = sylLower.indexOf('oang');
+        if (oangIdx !== -1) return oangIdx + 1;
+
+        const oaIdx = sylLower.indexOf('oa');
+        if (oaIdx !== -1) {
+          return oaIdx; // pure oa or oaⁿ -> mark on 'o'
+        }
+
+        // Standard POJ priority: o > e > a > u > i
+        const oIdx = sylLower.indexOf('o');
+        if (oIdx !== -1) return oIdx;
+
+        const eIdx = sylLower.indexOf('e');
+        if (eIdx !== -1) return eIdx;
+
+        const aIdx = sylLower.indexOf('a');
+        if (aIdx !== -1) return aIdx;
+
+        const uIdx = sylLower.indexOf('u');
+        if (uIdx !== -1) return uIdx;
+
+        const iIdx = sylLower.indexOf('i');
+        if (iIdx !== -1) return iIdx;
+
+        // Syllabic consonants
+        const ngIdx = sylLower.indexOf('ng');
+        if (ngIdx !== -1) return ngIdx; // on 'n'
+
+        const mIdx = sylLower.indexOf('m');
+        if (mIdx !== -1) return mIdx;
+
+        return -1;
       }
-      return targetIdx;
     },
 
     // ----------------------------------------------------
@@ -1704,6 +1828,9 @@
     // ----------------------------------------------------
     cl2tl: function (str) {
       if (!str) return '';
+      if (/[áàâāéèêēíìîīóòôōúùûūǎăěĕǐĭǒŏǔŭ\u0300-\u036F]/i.test(str)) {
+        return this.ctsConvert(str, 'poj_unicode', 'tailo_unicode');
+      }
       return str
         .replace(/chh/g, 'tsh').replace(/Chh/g, 'Tsh').replace(/CHH/g, 'TSH')
         .replace(/ch/g, 'ts').replace(/Ch/g, 'Ts').replace(/CH/g, 'TS')
@@ -1718,6 +1845,9 @@
 
     tl2cl: function (str) {
       if (!str) return '';
+      if (/[áàâāéèêēíìîīóòôōúùûūǎăěĕǐĭǒŏǔŭ\u0300-\u036F]/i.test(str)) {
+        return this.ctsConvert(str, 'tailo_unicode', 'poj_unicode');
+      }
       return str
         .replace(/tsh/g, 'chh').replace(/Tsh/g, 'Chh').replace(/TSH/g, 'CHH')
         .replace(/ts/g, 'ch').replace(/Ts/g, 'Ch').replace(/TS/g, 'CH')
