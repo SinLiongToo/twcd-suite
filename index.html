@@ -103,9 +103,9 @@
         <div>
           <div class="flex items-center space-x-2">
             <h1 class="text-lg font-bold text-slate-900 dark:text-white tracking-tight">TWCD 台語數位工具箱</h1>
-            <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">Next-Gen v2.4</span>
+            <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">Next-Gen v2.6</span>
           </div>
-          <p class="text-xs text-slate-500 dark:text-slate-400">離線逆向重構 • 華台翻譯 • 漢羅全羅 • Ruby標音 • 教育部真人音檔</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400">離線逆向重構 • 華台翻譯 • 漢羅/全羅/全漢 • Ruby標音 • 教育部真人音檔</p>
         </div>
       </div>
 
@@ -610,8 +610,8 @@
         <span>•</span>
         <span class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 font-medium">
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-          <span>📅 最後更新日期：2026-10-15</span>
-          <span class="text-[10px] px-1.5 py-0.2 bg-emerald-200/80 dark:bg-emerald-900 rounded font-semibold">v2.5</span>
+          <span>📅 最後更新日期：2026-10-16</span>
+          <span class="text-[10px] px-1.5 py-0.2 bg-emerald-200/80 dark:bg-emerald-900 rounded font-semibold">v2.6</span>
         </span>
         <span>•</span>
         <button id="footer-credits-link" class="text-indigo-600 dark:text-indigo-400 hover:underline font-medium">查看完整資料來源、技術出處與致敬銘謝</button>
@@ -865,8 +865,20 @@
       <div id="modal-content-changelog" class="hidden space-y-3 text-xs leading-relaxed">
         <div class="p-3 bg-indigo-50/70 dark:bg-indigo-950/40 rounded-xl border border-indigo-200 dark:border-indigo-800">
           <div class="flex items-center justify-between font-bold text-indigo-700 dark:text-indigo-300 mb-1">
+            <span>v2.6 (漢羅 ⇄ 全漢雙向轉換與教育部全漢台文升級版)</span>
+            <span class="text-[10px] text-indigo-500 font-bold">當前版本 (2026.10.16)</span>
+          </div>
+          <ul class="list-disc list-inside space-y-0.5 text-slate-600 dark:text-slate-300">
+            <li><strong>🔄 新增「漢羅 / 全羅 ➔ 全漢 (HL/CL ➔ CH)」轉換</strong>：整合教育部萌典、TWCD 純漢庫與特藏詞庫共 57,700+ 組映射及高頻虛詞推薦本字優先表，精準將漢羅或全羅文章轉為教育部推薦純漢字。</li>
+            <li><strong>🔄 新增「全漢 ➔ 漢羅 (CH ➔ HL)」轉換</strong>：結合杜信龍《護國 評論集》高頻漢羅用詞與複合詞保護機制（保護「目的」、「共同」、「教會」等複合詞不被誤拆），支援台羅與白話字 (POJ) 自然漢羅混寫。</li>
+            <li><strong>🈳 華語轉台語新增「全漢台文」風格</strong>：支援一鍵將現代華語文章翻譯為純漢字台文。</li>
+          </ul>
+        </div>
+
+        <div class="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700/60">
+          <div class="flex items-center justify-between font-bold text-slate-700 dark:text-slate-300 mb-1">
             <span>v2.5 (自創台語辭書特藏：杜信龍《護國 評論集》當代政論詞典整合版)</span>
-            <span class="text-[10px] text-indigo-500 font-bold">當前版本</span>
+            <span class="text-[10px] text-slate-400">歷程版本 (2026.10.15)</span>
           </div>
           <ul class="list-disc list-inside space-y-0.5 text-slate-600 dark:text-slate-300">
             <li><strong>🛡️ 整合杜信龍《護國 評論集》台語詞典</strong>：納入 1,836 條當代政經、國安防衛、公民社會與母語復振評論語彙、精確標音與實務時論例句。</li>

@@ -8,7 +8,7 @@
 [![Data](https://img.shields.io/badge/Dictionary-113%2C000%2B%20Entries-emerald)](#)
 [![Audio](https://img.shields.io/badge/Audio-21%2C700%2B%20Native%20Recordings-red)](#)
 [![Visitors](https://hits.sh/sinliongtoo.github.io/twcd-suite.svg?view=today-total&style=flat-square&label=%E4%BD%BF%E7%94%A8%E4%BA%BA%E6%AC%A1&color=4f46e5)](https://hits.sh/sinliongtoo.github.io/twcd-suite/)
-[![Updated](https://img.shields.io/badge/Updated-2026--10--14-blue)](#)
+[![Updated](https://img.shields.io/badge/Updated-2026--10--16-blue)](#)
 [![Offline](https://img.shields.io/badge/Offline-100%25%20Zero--Dependency-indigo)](#)
 [![License](https://img.shields.io/badge/License-Academic%20%26%20Open%20Source-amber)](#)
 
@@ -215,7 +215,18 @@ node build_user_dicts.js
 
 ## 📜 版本演進與變更紀錄 (Changelog)
 
-### **v2.5 (自創台語辭書特藏：杜信龍《護國 評論集》當代政論詞典整合版 - 當前版本)**
+### **v2.6 (漢羅 ⇄ 全漢雙向轉換與教育部全漢台文升級版 - 當前版本 2026.10.16)**
+- **🔄 新增「漢羅 / 全羅 ➔ 全漢 (HL/CL ➔ CH)」轉換**：
+  - 整合教育部萌典 (`20,604` 詞)、TWCD 純漢庫 (`28,347` 詞) 與特藏詞庫共 **57,700+ 組**映射及台語高頻虛詞推薦本字優先表，精準將漢羅或全羅文章轉為教育部推薦純漢字。
+  - 支援台羅 (Tâi-lô)、白話字 (POJ)、數字調與連寫雙音節自動切分，並自動收合漢字間空白。
+- **🔄 新增「全漢 ➔ 漢羅 (CH ➔ HL)」轉換**：
+  - 結合杜信龍《護國 評論集》高頻漢羅用詞與教育部萌典多字複合詞保護機制（保護「目的」、「共同」、「教會」、「著作」等複合詞不被誤拆），支援輸出台羅或白話字 (POJ) 自然漢羅混寫。
+- **🈳 華語轉台語新增「全漢台文」風格**：
+  - 支援一鍵將現代華語文章翻譯為純漢字台文。
+
+---
+
+### **v2.5 (自創台語辭書特藏：杜信龍《護國 評論集》當代政論詞典整合版 - 2026.10.15)**
 - **🛡️ 整合杜信龍《護國 評論集（台-華）》台語詞典 (1,836 詞)**：
   - 完整收錄杜信龍老師 2014-2026 年於《民報》、《自由時報》發表之 240 篇政經國安、社會改革、母語復振評論語料。
   - 專為全羅、漢羅、白話字 (POJ) 與教育部台羅 (Tâi-lô) 研製，附帶豐富之當代政論與時事評論語境例句。
