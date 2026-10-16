@@ -484,7 +484,7 @@
         const { h, c } = hl_cl[i];
         if (!h || !c) continue;
         if (Array.from(h).length === 1 && !map[h]) {
-          map[h] = c;
+          map[h] = this.normalizePoj(c);
         }
       }
       this._charFallback = map;
@@ -550,24 +550,10 @@
       for (let i = 0; i < clList.length; i++) {
         const entry = clList[i];
         if (entry.c && entry.c.includes('-') && !entry.c.startsWith('-') && !entry.c.endsWith('-')) {
-          const unhyphenated = entry.c.replace(/[\s-]/g, '').toLowerCase();
+          const normC = this.normalizePoj(entry.c);
+          const unhyphenated = normC.replace(/[\s-]/g, '').toLowerCase();
           if (!map.has(unhyphenated) && unhyphenated.length >= 3) {
-            map.set(unhyphenated, entry.c);
-          }
-        }
-      }
-
-      // 2. From Ruby (10,197 entries with hyphens)
-      const rubyList = (this.custom.ruby || []).concat((this.data && this.data.ruby) || []);
-      for (let i = 0; i < rubyList.length; i++) {
-        const entry = rubyList[i];
-        if (!entry.r) continue;
-        const match = entry.r.match(/<rt>([^<]+)<\/rt>/);
-        if (match && match[1].includes('-') && !match[1].startsWith('-') && !match[1].endsWith('-')) {
-          const conv = this.ctsConvert(match[1], 'tailo_num', 'poj_unicode');
-          const unhyphenated = conv.replace(/[\s-]/g, '').toLowerCase();
-          if (!map.has(unhyphenated) && unhyphenated.length >= 3) {
-            map.set(unhyphenated, conv);
+            map.set(unhyphenated, normC);
           }
         }
       }
@@ -701,7 +687,7 @@
           curr = curr.next.get(ch);
         }
         if (!curr.val) {
-          curr.val = item.p;
+          curr.val = this.normalizePoj(item.p);
           curr.src = item.h;
         }
       }
@@ -719,7 +705,7 @@
           curr = curr.next.get(ch);
         }
         if (!curr.val) {
-          curr.val = c;
+          curr.val = this.normalizePoj(c);
           curr.src = h;
         }
       }
@@ -736,7 +722,7 @@
           if (!curr.next.has(ch)) curr.next.set(ch, this._createTrieNode());
           curr = curr.next.get(ch);
         }
-        curr.val = c;
+        curr.val = this.normalizePoj(c);
         curr.src = h;
       }
 
@@ -1393,9 +1379,11 @@
         out = this.restoreHyphens(out);
       }
 
-      // Step 2: Convert to Tai-lo if requested
+      // Step 2: Convert to Tai-lo or ensure standard POJ tone placement
       if (options.outputStyle === 'tailo') {
         out = this.cl2tl(out);
+      } else {
+        out = this.normalizePoj(out);
       }
 
       // Step 3: English half-width punctuation, capitalization, and clean spacing
@@ -1541,7 +1529,11 @@
       let numText = this.toNumbered(text, fromType);
 
       // Step 2: Convert numbered format to target format
-      return this.fromNumbered(numText, toType);
+      let result = this.fromNumbered(numText, toType);
+      if (toType === 'poj_unicode') {
+        result = this.normalizePoj(result);
+      }
+      return result;
     },
 
     toNumbered: function (text, fromType) {
@@ -1861,9 +1853,74 @@
         .replace(/ⁿ/g, 'nn').replace(/N(?=[^a-zA-Z]|$)/g, 'nn');
     },
 
+    normalizePoj: function (str) {
+      if (!str) return '';
+      let s = str.normalize('NFC');
+
+      // 0. Fix o͘ with tone marks (e.g. ó͘ -> ó͘, ò͘ -> ò͘, ô͘ -> ô͘, ō͘ -> ō͘, o̍͘ -> o̍͘)
+      s = s.replace(/(o|O)(?:͘|\u0358)([\u0300-\u036F\u030d])/g, (m, oChar, mark) => {
+        const isUpper = oChar === 'O';
+        if (mark === '\u0301') return (isUpper ? 'Ó' : 'ó') + '͘';
+        if (mark === '\u0300') return (isUpper ? 'Ò' : 'ò') + '͘';
+        if (mark === '\u0302') return (isUpper ? 'Ô' : 'ô') + '͘';
+        if (mark === '\u0304') return (isUpper ? 'Ō' : 'ō') + '͘';
+        if (mark === '\u030c') return (isUpper ? 'Ǒ' : 'ǒ') + '͘';
+        if (mark === '\u030d') return (isUpper ? 'O' : 'o') + '\u030d͘';
+        return m;
+      });
+
+      // 1. Fix oe: tone mark on o unless followed by h
+      s = s.replace(/(o)(è|é|ê|ē|ě|e\u030d)(?!h)/gi, (m, oChar, eTone) => {
+        const isUpperO = oChar === 'O';
+        const isUpperE = m[1] === m[1].toUpperCase() && m[1] !== m[1].toLowerCase();
+        const eNorm = eTone.normalize('NFD');
+        let baseO = isUpperO ? 'O' : 'o';
+        if (eTone === 'è' || eTone === 'È' || eNorm.includes('\u0300')) baseO = isUpperO ? 'Ò' : 'ò';
+        else if (eTone === 'é' || eTone === 'É' || eNorm.includes('\u0301')) baseO = isUpperO ? 'Ó' : 'ó';
+        else if (eTone === 'ê' || eTone === 'Ê' || eNorm.includes('\u0302')) baseO = isUpperO ? 'Ô' : 'ô';
+        else if (eTone === 'ē' || eTone === 'Ē' || eNorm.includes('\u0304')) baseO = isUpperO ? 'Ō' : 'ō';
+        else if (eTone === 'ě' || eTone === 'Ě' || eNorm.includes('\u030c')) baseO = isUpperO ? 'Ǒ' : 'ǒ';
+        else if (eNorm.includes('\u030d')) baseO = (isUpperO ? 'O' : 'o') + '\u030d';
+        return baseO + (isUpperE ? 'E' : 'e');
+      });
+
+      // 2. Fix oa:
+      // Case A: oa followed by i, n, t, h, ng -> tone on a (e.g. oán, oát, oa̍h, oái, oáng)
+      s = s.replace(/([òóôōǒ]|o\u030d)(a)(i|ng|[nth])(?![a-zA-Z\u0300-\u036F])/gi, (m, oTone, aChar, tail) => {
+        const isUpperO = oTone[0] === 'O' || oTone[0] === 'Ò' || oTone[0] === 'Ó' || oTone[0] === 'Ô' || oTone[0] === 'Ō' || oTone[0] === 'Ǒ';
+        const isUpperA = aChar === aChar.toUpperCase();
+        const oNorm = oTone.normalize('NFD');
+        let baseA = isUpperA ? 'A' : 'a';
+        if (oTone === 'ò' || oTone === 'Ò' || oNorm.includes('\u0300')) baseA = isUpperA ? 'À' : 'à';
+        else if (oTone === 'ó' || oTone === 'Ó' || oNorm.includes('\u0301')) baseA = isUpperA ? 'Á' : 'á';
+        else if (oTone === 'ô' || oTone === 'Ô' || oNorm.includes('\u0302')) baseA = isUpperA ? 'Â' : 'â';
+        else if (oTone === 'ō' || oTone === 'Ō' || oNorm.includes('\u0304')) baseA = isUpperA ? 'Ā' : 'ā';
+        else if (oTone === 'ǒ' || oTone === 'Ǒ' || oNorm.includes('\u030c')) baseA = isUpperA ? 'Ǎ' : 'ǎ';
+        else if (oNorm.includes('\u030d')) baseA = (isUpperA ? 'A' : 'a') + '\u030d';
+        return (isUpperO ? 'O' : 'o') + baseA + tail;
+      });
+
+      // Case B: oa NOT followed by i, n, t, h, ng -> tone on o (e.g. góa, tōa, khòaⁿ)
+      s = s.replace(/(o)(à|á|â|ā|ǎ|a\u030d)(?![inth]|ng)/gi, (m, oChar, aTone) => {
+        const isUpperO = oChar === 'O';
+        const isUpperA = m[1] === m[1].toUpperCase() && m[1] !== m[1].toLowerCase();
+        const aNorm = aTone.normalize('NFD');
+        let baseO = isUpperO ? 'O' : 'o';
+        if (aTone === 'à' || aTone === 'À' || aNorm.includes('\u0300')) baseO = isUpperO ? 'Ò' : 'ò';
+        else if (aTone === 'á' || aTone === 'Á' || aNorm.includes('\u0301')) baseO = isUpperO ? 'Ó' : 'ó';
+        else if (aTone === 'â' || aTone === 'Â' || aNorm.includes('\u0302')) baseO = isUpperO ? 'Ô' : 'ô';
+        else if (aTone === 'ā' || aTone === 'Ā' || aNorm.includes('\u0304')) baseO = isUpperO ? 'Ō' : 'ō';
+        else if (aTone === 'ǎ' || aTone === 'Ǎ' || aNorm.includes('\u030c')) baseO = isUpperO ? 'Ǒ' : 'ǒ';
+        else if (aNorm.includes('\u030d')) baseO = (isUpperO ? 'O' : 'o') + '\u030d';
+        return baseO + (isUpperA ? 'A' : 'a');
+      });
+
+      return s;
+    },
+
     tl2cl: function (str) {
       if (!str) return '';
-      return str
+      let s = str.normalize('NFC')
         .replace(/tsh/g, 'chh').replace(/Tsh/g, 'Chh').replace(/TSH/g, 'CHH')
         .replace(/ts/g, 'ch').replace(/Ts/g, 'Ch').replace(/TS/g, 'CH')
         .replace(/uéh/g, 'oe̍h').replace(/ue̍h/g, 'oe̍h')
@@ -1885,6 +1942,8 @@
         .replace(/ing/g, 'eng').replace(/Ing/g, 'Eng').replace(/ING/g, 'ENG')
         .replace(/ik/g, 'ek').replace(/Ik/g, 'Ek').replace(/IK/g, 'EK')
         .replace(/nn(?=[^a-zA-Z]|$)/g, 'ⁿ');
+
+      return this.normalizePoj(s);
     },
 
     toEnglishPunctuation: function (str) {

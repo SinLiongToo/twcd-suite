@@ -1304,20 +1304,15 @@ document.addEventListener('DOMContentLoaded', function () {
   // Initialize dict stats
   renderDictStats();
 
-  // Pre-warm Tries in background idle time so typing input translates instantly with 0ms lag
-  if (typeof requestIdleCallback !== 'undefined') {
-    requestIdleCallback(() => {
-      Engine.getHgTrie(true);
-      Engine.getHlClTrie();
-      Engine.getClHlTrie(true);
-      Engine.buildHyphenMap();
-    });
-  } else {
-    setTimeout(() => {
-      Engine.getHgTrie(true);
-      Engine.getHlClTrie();
-      Engine.getClHlTrie(true);
-      Engine.buildHyphenMap();
-    }, 150);
-  }
+  // Progressive non-blocking background warming (staggered across idle frames so typing is instant and smooth)
+  const idleWarm = (fn, delay) => {
+    if (typeof requestIdleCallback !== 'undefined') {
+      setTimeout(() => requestIdleCallback(() => fn()), delay);
+    } else {
+      setTimeout(fn, delay);
+    }
+  };
+  idleWarm(() => Engine.getHgTrie(true), 1500);
+  idleWarm(() => Engine.getHlClTrie(), 3000);
+  idleWarm(() => Engine.getClHlTrie(true), 4500);
 });
