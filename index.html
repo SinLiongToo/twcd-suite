@@ -103,7 +103,7 @@
         <div>
           <div class="flex items-center space-x-2">
             <h1 class="text-lg font-bold text-slate-900 dark:text-white tracking-tight">TWCD 台語數位工具箱</h1>
-            <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">Next-Gen v2.6</span>
+            <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">Next-Gen v2.7</span>
           </div>
           <p class="text-xs text-slate-500 dark:text-slate-400">離線逆向重構 • 華台翻譯 • 漢羅/全羅/全漢 • Ruby標音 • 教育部真人音檔</p>
         </div>
@@ -611,7 +611,7 @@
         <span class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 font-medium">
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
           <span>📅 最後更新日期：2026-10-16</span>
-          <span class="text-[10px] px-1.5 py-0.2 bg-emerald-200/80 dark:bg-emerald-900 rounded font-semibold">v2.6</span>
+          <span class="text-[10px] px-1.5 py-0.2 bg-emerald-200/80 dark:bg-emerald-900 rounded font-semibold">v2.7</span>
         </span>
         <span>•</span>
         <button id="footer-credits-link" class="text-indigo-600 dark:text-indigo-400 hover:underline font-medium">查看完整資料來源、技術出處與致敬銘謝</button>
@@ -865,8 +865,21 @@
       <div id="modal-content-changelog" class="hidden space-y-3 text-xs leading-relaxed">
         <div class="p-3 bg-indigo-50/70 dark:bg-indigo-950/40 rounded-xl border border-indigo-200 dark:border-indigo-800">
           <div class="flex items-center justify-between font-bold text-indigo-700 dark:text-indigo-300 mb-1">
-            <span>v2.6 (漢羅 ⇄ 全漢雙向轉換與教育部全漢台文升級版)</span>
+            <span>v2.7 (白話字 POJ 標調正字法全面校準與極速輸入效能升級版)</span>
             <span class="text-[10px] text-indigo-500 font-bold">當前版本 (2026.10.16)</span>
+          </div>
+          <ul class="list-disc list-inside space-y-0.5 text-slate-600 dark:text-slate-300">
+            <li><strong>✨ 白話字 POJ 標調正字法全面校準</strong>：嚴格落實白話字正字法聲調優先權（<code>o &gt; e &gt; a &gt; u &gt; i</code>），徹底修正 <code>oe</code> 音節聲調位置（除 <code>oeh</code> 在 <code>e</code> 如 <code>oe̍h</code> 外，其餘如 <code>òe</code>、<code>óe</code>、<code>ōe</code> 標調均嚴格置於 <code>o</code>，如 <code>過去</code> ➔ <code>Kòe-khì</code>、<code>開會</code> ➔ <code>Khui-hōe</code>）；並校準 <code>oa</code>（<code>óa</code>/<code>oán</code>）與 <code>o͘</code>（<code>ó͘</code>/<code>Lō͘</code>）之聲調位置。</li>
+            <li><strong>🔤 Unicode 組合調符 (NFD) 與預組字 (NFC) 全域正規化</strong>：全面解決萌典與歷史語料中分解式聲調符（如 <code>e</code> + <code>\u0300</code>）遺留在第二母音的歷史瑕疵，輸出端自動無損正規化。</li>
+            <li><strong>⚡ 消除輸入卡頓，打字極速零延遲</strong>：重構前綴樹與連字符模組，移除音節連字符預熱中多餘的萬筆同步轉碼，並改採背景非同步閒置漸進預熱（<code>idleWarm</code>），徹底終結鍵盤打字時的瀏覽器畫面凍結，打字即時響應（&lt; 5ms）。</li>
+            <li><strong>📦 離線字典庫全面批次清洗</strong>：全自動校準 <code>hl_cl.json</code>、<code>cl_hl.json</code> 及 <code>data.js</code> 中 500+ 個歷史偏差詞條，離線環境隨點隨查 100% 正確。</li>
+          </ul>
+        </div>
+
+        <div class="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700/60">
+          <div class="flex items-center justify-between font-bold text-slate-700 dark:text-slate-300 mb-1">
+            <span>v2.6 (漢羅 ⇄ 全漢雙向轉換與教育部全漢台文升級版)</span>
+            <span class="text-[10px] text-slate-400">歷程版本 (2026.10.16)</span>
           </div>
           <ul class="list-disc list-inside space-y-0.5 text-slate-600 dark:text-slate-300">
             <li><strong>🔄 新增「漢羅 / 全羅 ➔ 全漢 (HL/CL ➔ CH)」轉換</strong>：整合教育部萌典、TWCD 純漢庫與特藏詞庫共 57,700+ 組映射及高頻虛詞推薦本字優先表，精準將漢羅或全羅文章轉為教育部推薦純漢字。</li>

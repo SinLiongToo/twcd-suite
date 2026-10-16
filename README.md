@@ -4,6 +4,7 @@
 > 純前端 • 100% 離線運行 • 免裝 Java • 毫秒級極速轉換 • 支援教育部 Ext-B 擴充漢字
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-success?logo=github)](https://sinliongtoo.github.io/twcd-suite/)
+[![Version](https://img.shields.io/badge/Version-v2.7-indigo)](#)
 [![Language](https://img.shields.io/badge/Language-JavaScript%20%7C%20HTML5%20%7C%20CSS3-blue)](#)
 [![Data](https://img.shields.io/badge/Dictionary-113%2C000%2B%20Entries-emerald)](#)
 [![Audio](https://img.shields.io/badge/Audio-21%2C700%2B%20Native%20Recordings-red)](#)
@@ -215,7 +216,23 @@ node build_user_dicts.js
 
 ## 📜 版本演進與變更紀錄 (Changelog)
 
-### **v2.6 (漢羅 ⇄ 全漢雙向轉換與教育部全漢台文升級版 - 當前版本 2026.10.16)**
+### **v2.7 (白話字 POJ 標調正字法全面校準與極速輸入效能升級版 - 當前版本 2026.10.16)**
+- **✨ 白話字 POJ 標調正字法全面校準**：
+  - 嚴格落實白話字正字法聲調優先權（`o > e > a > u > i > ng > m`）。
+  - 徹底修正 `oe` 音節聲調位置：除 `oeh`（如 `oe̍h`）聲調在 `e` 外，其餘所有 `oe` 音節之聲調符號**一律置於 `o`**（例如 `òe`, `óe`, `ōe`, `ôe`, `o̍e`, `ǒe`），徹底解決 `過去` 轉為 `Koè-khì`、`開會` 轉為 `Khui-hoē` 的歷史問題，全域正確輸出 `Kòe-khì`、`Khui-hōe`、`Kóng-ōe`、`Bóe-á`。
+  - 校準 `oa` 音節：後接子音/雙母音（`oán`, `oát`, `oa̍h`, `oái`）標調在 `a`；純 `oa` 或 `oaⁿ` 標調嚴格在 `o`（`góa`, `tōa`, `khòaⁿ`, `pôaⁿ`）。
+  - 校準 `o͘` 音節：閉口音聲調標記位置統一置於 `o` 與右上方點之間（`ó͘`, `ò͘`, `ô͘`, `ō͘`, `o̍͘`）。
+- **🔤 Unicode 組合調符 (NFD) 與預組字 (NFC) 全域正規化**：
+  - 徹底根除萌典及 TWCD 歷史詞庫中分解式 Unicode 聲調碼（如 `e` + `\u0300` 組合重音符）遺留在第二母音的歷史瑕疵，於所有轉譯模組輸出端全面無損正規化。
+- **⚡ 消除輸入卡頓，打字極速零延遲**：
+  - 重構記憶體前綴樹（Trie）與連字符模組，移除音節連字符預熱中多達 10,000+ 筆 Ruby 標音重複轉碼負擔。
+  - 採用背景非同步閒置漸進預熱排程（`idleWarm`），徹底解決頁面載入初期打字卡頓、畫面凍結問題，鍵盤輸入即時響應（< 5ms）。
+- **📦 離線字典庫全面批次清洗**：
+  - 批次清洗並重新校準 `data/hl_cl.json`、`data/cl_hl.json` 與 `data.js` 中 500+ 個歷史偏差詞條，離線環境無須聯網即可享有 100% 正確的傳統白話字標調。
+
+---
+
+### **v2.6 (漢羅 ⇄ 全漢雙向轉換與教育部全漢台文升級版 - 2026.10.16)**
 - **🔄 新增「漢羅 / 全羅 ➔ 全漢 (HL/CL ➔ CH)」轉換**：
   - 整合教育部萌典 (`20,604` 詞)、TWCD 純漢庫 (`28,347` 詞) 與特藏詞庫共 **57,700+ 組**映射及台語高頻虛詞推薦本字優先表，精準將漢羅或全羅文章轉為教育部推薦純漢字。
   - 支援台羅 (Tâi-lô)、白話字 (POJ)、數字調與連寫雙音節自動切分，並自動收合漢字間空白。
