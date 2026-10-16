@@ -34,6 +34,10 @@
     return Object.entries(rev).sort((a, b) => b[0].length - a[0].length);
   }
 
+  function escapeRegExp(s) {
+    return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
   const REV_TAILO = buildReverseMap(MAP_TAILO);
   const REV_UTF8 = buildReverseMap(MAP_UTF8);
   const REV_TP = buildReverseMap(MAP_TP);
@@ -44,11 +48,16 @@
   const SORTED_REV_TP = getSortedEntries(REV_TP);
   const SORTED_REV_HOTSYS = getSortedEntries(REV_HOTSYS);
 
+  const TAILO_REV_REGEX = new RegExp(SORTED_REV_TAILO.map(e => escapeRegExp(e[0])).join('|'), 'g');
+  const UTF8_REV_REGEX = new RegExp(SORTED_REV_UTF8.map(e => escapeRegExp(e[0])).join('|'), 'g');
+  const TP_REV_REGEX = new RegExp(SORTED_REV_TP.map(e => escapeRegExp(e[0])).join('|'), 'g');
+  const HOTSYS_REV_REGEX = new RegExp(SORTED_REV_HOTSYS.map(e => escapeRegExp(e[0])).join('|'), 'g');
+
   // Move any tone digit (2-9) inside a syllable to the end of that syllable
   const MOVE_TONE_REGEX = /([a-zA-Z\u00C0-\u024F\u0300-\u036F\u207Fⁿ]*?)([235789])([a-zA-Z\u00C0-\u024F\u0300-\u036F\u207Fⁿ]+)/g;
 
   function fixTonePosition(text) {
-    if (!text) return '';
+    if (!text || !/[235789]/.test(text)) return text;
     let prev;
     let curr = text;
     do {
@@ -494,7 +503,7 @@
         for (let r = 0; r < readings.length; r++) {
           const cleanR = readings[r].trim();
           if (cleanR.includes('-') && !cleanR.startsWith('-') && !cleanR.endsWith('-')) {
-            const convPoj = this.ctsConvert(cleanR, 'tailo_unicode', 'poj_unicode');
+            const convPoj = this.tl2cl(cleanR);
             const unhypPoj = convPoj.replace(/[\s-]/g, '').toLowerCase();
             if (!map.has(unhypPoj) && unhypPoj.length >= 3) {
               map.set(unhypPoj, convPoj);
@@ -642,7 +651,7 @@
         if (!info.t) continue;
         const rawTrs = info.t.split('/')[0].trim();
         if (!rawTrs) continue;
-        const pojVal = this.ctsConvert(rawTrs, 'tailo_unicode', 'poj_unicode');
+        const pojVal = this.tl2cl(rawTrs);
         let curr = root;
         for (const ch of word) {
           if (!curr.next.has(ch)) curr.next.set(ch, this._createTrieNode());
@@ -656,7 +665,7 @@
       const uDicts = this.getUserDicts();
       for (const [word, info] of Object.entries(uDicts.chhitjia || {})) {
         if (!info.r) continue;
-        const pojVal = this.ctsConvert(info.r, 'tailo_unicode', 'poj_unicode');
+        const pojVal = this.tl2cl(info.r);
         let curr = root;
         for (const ch of word) {
           if (!curr.next.has(ch)) curr.next.set(ch, this._createTrieNode());
@@ -670,7 +679,7 @@
 
       for (const [word, info] of Object.entries(uDicts.hokkok || {})) {
         if (!info.r || !/[\u4e00-\u9fa5]/.test(word)) continue;
-        const pojVal = this.ctsConvert(info.r, 'tailo_unicode', 'poj_unicode');
+        const pojVal = this.tl2cl(info.r);
         let curr = root;
         for (const ch of word) {
           if (!curr.next.has(ch)) curr.next.set(ch, this._createTrieNode());
@@ -1544,37 +1553,37 @@
       let res = text.normalize('NFC');
 
       if (fromType === 'tailo_unicode') {
-        for (const [mark, numKey] of SORTED_REV_TAILO) {
-          if (res.includes(mark)) {
-            const letter = numKey.slice(0, -1);
-            const tone = numKey.slice(-1);
-            res = res.split(mark).join(letter + (tone === '1' ? '' : tone));
-          }
-        }
+        res = res.replace(TAILO_REV_REGEX, (m) => {
+          const numKey = REV_TAILO[m];
+          if (!numKey) return m;
+          const letter = numKey.slice(0, -1);
+          const tone = numKey.slice(-1);
+          return letter + (tone === '1' ? '' : tone);
+        });
       } else if (fromType === 'poj_unicode') {
-        for (const [mark, numKey] of SORTED_REV_UTF8) {
-          if (res.includes(mark)) {
-            const letter = numKey.slice(0, -1);
-            const tone = numKey.slice(-1);
-            res = res.split(mark).join(letter + (tone === '1' ? '' : tone));
-          }
-        }
+        res = res.replace(UTF8_REV_REGEX, (m) => {
+          const numKey = REV_UTF8[m];
+          if (!numKey) return m;
+          const letter = numKey.slice(0, -1);
+          const tone = numKey.slice(-1);
+          return letter + (tone === '1' ? '' : tone);
+        });
       } else if (fromType === 'tp') {
-        for (const [mark, numKey] of SORTED_REV_TP) {
-          if (res.includes(mark)) {
-            const letter = numKey.slice(0, -1);
-            const tone = numKey.slice(-1);
-            res = res.split(mark).join(letter + (tone === '1' ? '' : tone));
-          }
-        }
+        res = res.replace(TP_REV_REGEX, (m) => {
+          const numKey = REV_TP[m];
+          if (!numKey) return m;
+          const letter = numKey.slice(0, -1);
+          const tone = numKey.slice(-1);
+          return letter + (tone === '1' ? '' : tone);
+        });
       } else if (fromType === 'hotsys') {
-        for (const [mark, numKey] of SORTED_REV_HOTSYS) {
-          if (res.includes(mark)) {
-            const letter = numKey.slice(0, -1);
-            const tone = numKey.slice(-1);
-            res = res.split(mark).join(letter + (tone === '1' ? '' : tone));
-          }
-        }
+        res = res.replace(HOTSYS_REV_REGEX, (m) => {
+          const numKey = REV_HOTSYS[m];
+          if (!numKey) return m;
+          const letter = numKey.slice(0, -1);
+          const tone = numKey.slice(-1);
+          return letter + (tone === '1' ? '' : tone);
+        });
       }
 
       return fixTonePosition(res);
@@ -1828,30 +1837,49 @@
     // ----------------------------------------------------
     cl2tl: function (str) {
       if (!str) return '';
-      if (/[áàâāéèêēíìîīóòôōúùûūǎăěĕǐĭǒŏǔŭ\u0300-\u036F]/i.test(str)) {
-        return this.ctsConvert(str, 'poj_unicode', 'tailo_unicode');
-      }
       return str
         .replace(/chh/g, 'tsh').replace(/Chh/g, 'Tsh').replace(/CHH/g, 'TSH')
         .replace(/ch/g, 'ts').replace(/Ch/g, 'Ts').replace(/CH/g, 'TS')
+        .replace(/óeh/g, 'ue̍h').replace(/oéh/g, 'ue̍h').replace(/oe̍h/g, 'ue̍h')
+        .replace(/óe/g, 'ué').replace(/òe/g, 'uè').replace(/ôe/g, 'uê').replace(/ōe/g, 'uē').replace(/o̍e/g, 'ue̍')
+        .replace(/Óe/g, 'Ué').replace(/Òe/g, 'Uè').replace(/Ôe/g, 'Uê').replace(/Ōe/g, 'Uē').replace(/O̍e/g, 'Ue̍')
+        .replace(/oái/g, 'uái').replace(/oài/g, 'uài').replace(/oâi/g, 'uâi').replace(/oāi/g, 'uāi').replace(/oa̍i/g, 'ua̍i')
+        .replace(/oán/g, 'uán').replace(/oàn/g, 'uàn').replace(/oân/g, 'uân').replace(/oān/g, 'uān').replace(/oa̍n/g, 'ua̍n')
+        .replace(/oát/g, 'uát').replace(/oa̍t/g, 'ua̍t').replace(/oáh/g, 'uáh').replace(/oa̍h/g, 'ua̍h')
+        .replace(/óa/g, 'uá').replace(/òa/g, 'uà').replace(/ôa/g, 'uâ').replace(/ōa/g, 'uā').replace(/oa̍/g, 'ua̍')
+        .replace(/Óa/g, 'Uá').replace(/Òa/g, 'Uà').replace(/Ôa/g, 'Uâ').replace(/Ōa/g, 'Uā').replace(/Oa̍/g, 'Ua̍')
+        .replace(/ó͘/g, 'óo').replace(/ò͘/g, 'òo').replace(/ô͘/g, 'ôo').replace(/ō͘/g, 'ōo').replace(/o̍͘/g, 'o̍o')
+        .replace(/Ó͘/g, 'Óo').replace(/Ò͘/g, 'Òo').replace(/Ô͘/g, 'Ôo').replace(/Ō͘/g, 'Ōo').replace(/O̍͘/g, 'O̍o')
+        .replace(/o͘/g, 'oo').replace(/O͘/g, 'Oo')
+        .replace(/úi/g, 'uí').replace(/ùi/g, 'uì').replace(/ûi/g, 'uî').replace(/ūi/g, 'uī').replace(/u̍i/g, 'ui̍')
+        .replace(/Úi/g, 'Uí').replace(/Ùi/g, 'Uì').replace(/Ûi/g, 'Uî').replace(/Ūi/g, 'Uī').replace(/U̍i/g, 'Ui̍')
         .replace(/ou/g, 'oo').replace(/Ou/g, 'Oo').replace(/OU/g, 'OO')
         .replace(/oa/g, 'ua').replace(/Oa/g, 'Ua').replace(/OA/g, 'UA')
         .replace(/oe/g, 'ue').replace(/Oe/g, 'Ue').replace(/OE/g, 'UE')
         .replace(/eng/g, 'ing').replace(/Eng/g, 'Ing').replace(/ENG/g, 'ING')
         .replace(/ek/g, 'ik').replace(/Ek/g, 'Ik').replace(/EK/g, 'IK')
-        .replace(/o͘/g, 'oo').replace(/O͘/g, 'Oo')
         .replace(/ⁿ/g, 'nn').replace(/N(?=[^a-zA-Z]|$)/g, 'nn');
     },
 
     tl2cl: function (str) {
       if (!str) return '';
-      if (/[áàâāéèêēíìîīóòôōúùûūǎăěĕǐĭǒŏǔŭ\u0300-\u036F]/i.test(str)) {
-        return this.ctsConvert(str, 'tailo_unicode', 'poj_unicode');
-      }
       return str
         .replace(/tsh/g, 'chh').replace(/Tsh/g, 'Chh').replace(/TSH/g, 'CHH')
         .replace(/ts/g, 'ch').replace(/Ts/g, 'Ch').replace(/TS/g, 'CH')
-        .replace(/oo/g, 'ou').replace(/Oo/g, 'Ou').replace(/OO/g, 'OU')
+        .replace(/uéh/g, 'oe̍h').replace(/ue̍h/g, 'oe̍h')
+        .replace(/ué/g, 'óe').replace(/uè/g, 'òe').replace(/uê/g, 'ôe').replace(/uē/g, 'ōe').replace(/ue̍/g, 'o̍e')
+        .replace(/Ué/g, 'Óe').replace(/Uè/g, 'Òe').replace(/Uê/g, 'Ôe').replace(/Uē/g, 'Ōe').replace(/Ue̍/g, 'O̍e')
+        .replace(/uái/g, 'oái').replace(/uài/g, 'oài').replace(/uâi/g, 'oâi').replace(/uāi/g, 'oāi').replace(/ua̍i/g, 'oa̍i')
+        .replace(/uán/g, 'oán').replace(/uàn/g, 'oàn').replace(/uân/g, 'oân').replace(/uān/g, 'oān').replace(/ua̍n/g, 'oa̍n')
+        .replace(/uát/g, 'oát').replace(/ua̍t/g, 'oa̍t').replace(/uáh/g, 'oáh').replace(/ua̍h/g, 'oa̍h')
+        .replace(/uá/g, 'óa').replace(/uà/g, 'òa').replace(/uâ/g, 'ôa').replace(/uā/g, 'ōa').replace(/ua̍/g, 'oa̍')
+        .replace(/Uá/g, 'Óa').replace(/Uà/g, 'Òa').replace(/Uâ/g, 'Ôa').replace(/Uā/g, 'Ōa').replace(/Ua̍/g, 'Oa̍')
+        .replace(/óo/g, 'ó͘').replace(/òo/g, 'ò͘').replace(/ôo/g, 'ô͘').replace(/ōo/g, 'ō͘').replace(/o̍o/g, 'o̍͘')
+        .replace(/Óo/g, 'Ó͘').replace(/Òo/g, 'Ò͘').replace(/Ôo/g, 'Ô͘').replace(/Ōo/g, 'Ō͘').replace(/O̍o/g, 'O̍͘')
+        .replace(/oo/g, 'o͘').replace(/Oo/g, 'O͘').replace(/OO/g, 'O͘')
+        .replace(/uí/g, 'úi').replace(/uì/g, 'ùi').replace(/uî/g, 'ûi').replace(/uī/g, 'ūi').replace(/ui̍/g, 'u̍i')
+        .replace(/Uí/g, 'Úi').replace(/Uì/g, 'Ùi').replace(/Uî/g, 'Ûi').replace(/Ūi/g, 'Ūi').replace(/Ui̍/g, 'U̍i')
+        .replace(/ou/g, 'o͘').replace(/Ou/g, 'O͘').replace(/OU/g, 'O͘')
         .replace(/ua/g, 'oa').replace(/Ua/g, 'Oa').replace(/UA/g, 'OA')
         .replace(/ue/g, 'oe').replace(/Ue/g, 'Oe').replace(/UE/g, 'OE')
         .replace(/ing/g, 'eng').replace(/Ing/g, 'Eng').replace(/ING/g, 'ENG')

@@ -1303,4 +1303,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Initialize dict stats
   renderDictStats();
+
+  // Pre-warm Tries in background idle time so typing input translates instantly with 0ms lag
+  if (typeof requestIdleCallback !== 'undefined') {
+    requestIdleCallback(() => {
+      Engine.getHgTrie(true);
+      Engine.getHlClTrie();
+      Engine.getClHlTrie(true);
+      Engine.buildHyphenMap();
+    });
+  } else {
+    setTimeout(() => {
+      Engine.getHgTrie(true);
+      Engine.getHlClTrie();
+      Engine.getClHlTrie(true);
+      Engine.buildHyphenMap();
+    }, 150);
+  }
 });
