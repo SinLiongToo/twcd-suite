@@ -78,6 +78,10 @@
       hl_cl: null,
       cl_hl_case_insensitive: null,
       cl_hl_case_sensitive: null,
+      cl_ch_case_insensitive: null,
+      cl_ch_case_sensitive: null,
+      ch_hl_tailo: null,
+      ch_hl_poj: null,
       ruby: null
     },
     _charFallback: null,
@@ -221,10 +225,223 @@
         hl_cl: null,
         cl_hl_case_insensitive: null,
         cl_hl_case_sensitive: null,
+        cl_ch_case_insensitive: null,
+        cl_ch_case_sensitive: null,
+        ch_hl_tailo: null,
+        ch_hl_poj: null,
         ruby: null
       };
       this._hyphenMap = null;
       this._charFallback = null;
+    },
+
+    // 台語高頻核心字詞／虛詞標準推薦漢字優先表 (用於「漢羅/全羅 ➔ 全漢」消除同音字歧義)
+    CORE_ROM2HAN: {
+      // 結構助詞、連接詞、介詞、語氣詞
+      'ê': '的', 'e5': '的',
+      'mā': '嘛', 'ma7': '嘛',
+      'koh': '閣', 'koh4': '閣',
+      'm̄': '毋', 'm7': '毋',
+      'm̄-koh': '毋閣', 'm̄koh': '毋閣',
+      'm̄-thang': '毋通', 'm̄thang': '毋通',
+      'm̄-nā': '毋但', 'm̄nā': '毋但',
+      'm̄-kú': '毋久', 'm̄kú': '毋久',
+      'm̄-sī': '毋是', 'm̄sī': '毋是',
+      'm̄-tio̍h': '毋著', 'm̄tio̍h': '毋著',
+      'm̄-bat': '毋捌', 'm̄bat': '毋捌',
+      'm̄-chai': '毋知', 'm̄-tsai': '毋知', 'm̄chai': '毋知', 'm̄tsai': '毋知',
+      'beh': '欲', 'beh4': '欲',
+      'lóng': '攏', 'long2': '攏',
+      'ài': '愛', 'ai3': '愛',
+      'leh': '咧', 'teh': '咧',
+      'tī': '佇', 'ti7': '佇',
+      'tō': '就', 'to̍h': '就', 'tioh8': '著',
+      'tio̍h': '著', 'tio̍h-ài': '著愛', 'tio̍h-sī': '著是',
+      'che': '這', 'tse': '這',
+      'chit': '這', 'tsit': '這',
+      'chit-ê': '這个', 'tsit-ê': '這个',
+      'chit-má': '這馬', 'tsit-má': '這馬',
+      'chiah-ê': '遮的', 'tsia-ê': '遮的', 'tsiah-ê': '遮的',
+      'hia-ê': '遐的', 'hiah-ê': '遐的',
+      'hit': '彼', 'hit-ê': '彼个',
+      'chia': '遮', 'tsia': '遮',
+      'hia': '遐', 'hiah': '遐',
+      'hiah-nī': '遐爾', 'hiahnī': '遐爾',
+      'kám': '敢', 'kam2': '敢',
+      'kā': '共', 'ka7': '共',
+      'hō͘': '予', 'hōo': '予', 'ho7': '予', 'hoo7': '予',
+      'hông': '予人',
+      'ē': '會', 'e7': '會',
+      'ē-tàng': '會當', 'ētàng': '會當',
+      'ē-sái': '會使', 'ēsái': '會使',
+      'ē-hiáu': '會曉', 'ēhiáu': '會曉',
+      'bē': '袂', 'bōe': '袂',
+      'bē-tàng': '袂當', 'bōe-tàng': '袂當',
+      'bē-sái': '袂使', 'bōe-sái': '袂使',
+      'bē-hiáu': '袂曉', 'bōe-hiáu': '袂曉',
+      'á': '仔', 'a2': '仔',
+      'á-sī': '抑是', 'ia̍h-sī': '抑是', 'iah-sī': '抑是',
+      'khah': '較', 'koh-khah': '閣較', 'kohkhah': '閣較',
+      'ah': '啊', 'à': '啊', 'lah': '啦', 'neh': '呢', 'hannh': '乎', 'haⁿh': '乎',
+      'chiah': '才', 'tsiah': '才',
+      'ka-tī': '家己', 'ka-kī': '家己', 'katī': '家己', 'kakī': '家己',
+      'niâ': '爾', 'niā': '爾', 'niā-niā': '爾爾', 'niā-tiāⁿ': '爾定',
+      'án-ne': '按呢', 'ánne': '按呢',
+      'án-chóaⁿ': '按怎', 'án-tsuánn': '按怎', 'ánchóaⁿ': '按怎', 'ántsuánn': '按怎',
+      'soah': '煞', 'suah': '煞',
+      'thang': '通', 'thang-hó': '通好',
+      'siōng': '上', 'siāng': '上', 'siōng-hó': '上好',
+      'sak': '捒', 'chhui-sak': '推捒', 'tshui-sak': '推捒',
+      'kan-taⁿ': '干焦', 'kan-tann': '干焦', 'kan-na': '干焦', 'kantaⁿ': '干焦', 'kantann': '干焦',
+      'nā': '若', 'nā-sī': '若是',
+      'chiâⁿ': '成', 'tsiânn': '成',
+      'kap': '佮', 'kah': '佮', 'hām': '和', 'chham': '參', 'tsham': '參',
+      'jú': '愈', 'lú': '愈',
+      'siáⁿ': '啥', 'siánn': '啥', 'sím': '甚',
+      'siáⁿ-mi̍h': '啥物', 'siáⁿ-mih': '啥物', 'siánn-mih': '啥物', 'siánn-mi̍h': '啥物', 'sím-mi̍h': '甚物',
+      'siáng': '誰', 'siáⁿ-lâng': '啥人', 'siánn-lâng': '啥人',
+      'mài': '莫',
+      'gōa': '外', 'guā': '外', 'gōa-chē': '外濟', 'guā-tsē': '外濟',
+      'sī': '是', 'bô': '無', 'ū': '有',
+      'chūn': '陣', 'tsūn': '陣', 'chit-chūn': '這陣', 'tsit-tsūn': '這陣',
+      'chi̍t': '一', 'tsi̍t': '一', 'chi̍t-ê': '一个', 'tsi̍t-ê': '一个', 'chi̍t-寡': '一寡', 'chi̍t-kóa': '一寡', 'tsi̍t-kuá': '一寡',
+      'kàu': '到', 'kàu-tè': '到底', 'kàu-taⁿ': '到今', 'kàu-tann': '到今',
+      'lia̍h': '掠', 'lia̍h-chò': '掠做', 'lia̍h-tsò': '掠做',
+      'chē': '濟', 'tsē': '濟', 'chōe': '濟', 'chē-chē': '濟濟', 'tsē-tsē': '濟濟',
+      'ǹg': '向', 'ǹg-bāng': '向望', 'ǹgbāng': '向望',
+      'phah': '拍', 'phah-piàⁿ': '拍拚', 'phah-piànn': '拍拚', 'phah-sǹg': '拍算',
+      'hoah': '喝', 'huah': '喝',
+      // 人稱代名詞
+      'góa': '我', 'guá': '我',
+      'lí': '你', 'i': '伊', 'in': '怹',
+      'lán': '咱', 'gún': '阮', 'goán': '阮', 'guán': '阮', 'lín': '恁',
+      'ta̍k-ke': '逐家', 'ta̍kke': '逐家', 'tāi-ke': '大家',
+      // 常用核心動詞與形容詞
+      'tiāⁿ-tio̍h': '定著', 'tiānn-tio̍h': '定著',
+      'bat': '捌', 'ùi': '對', 'uì': '對',
+      'kái': '改', 'ná': '那',
+      'tāi-chì': '代誌', 'tāi-tsì': '代誌', 'tāichì': '代誌', 'tāitsì': '代誌',
+      'khiā': '徛', 'khiā-khí': '徛起', 'khiākhí': '徛起',
+      'sioⁿ': '傷', 'siunn': '傷',
+      'lâng': '人', 'hó-lâng': '好人', 'pháiⁿ-lâng': '歹人', 'pháinn-lâng': '歹人', 'pháiⁿlâng': '歹人', 'pháinnlâng': '歹人',
+      'chhan-chhiūⁿ': '親像', 'tshan-tshiūnn': '親像', 'chhanchhiūⁿ': '親像', 'tshantshiūnn': '親像',
+      'the̍h': '提', 'khioh': '抾', 'khǹg': '囥',
+      'iû-goân': '猶原', 'iû-guân': '猶原', 'iûgoân': '猶原', 'iûguân': '猶原',
+      'chhùi': '喙', 'tshuì': '喙',
+      'kha': '跤',
+      'chhōe': '揣', 'tshuē': '揣', 'chhē': '揣', 'tshē': '揣',
+      'koân': '懸', 'kuân': '懸',
+      'mih': '物', 'mi̍h': '物', 'mi̍h-kiāⁿ': '物件', 'mi̍h-kiānn': '物件',
+      'iā': '也', 'pái': '擺',
+      'gín-á': '囡仔', 'gíná': '囡仔',
+      'kiáⁿ': '囝', 'kiánn': '囝', 'kiáⁿ-jî': '囝兒', 'kiánn-jî': '囝兒',
+      'pháiⁿ': '歹', 'pháinn': '歹', 'pháiⁿ-khòaⁿ': '歹看', 'pháiⁿ-thiaⁿ': '歹聽', 'pháiⁿ-sè': '歹勢', 'pháinn-sè': '歹勢',
+      'hó': '好', 'chin': '真', 'tsin': '真', 'chiok': '足', 'tsiok': '足',
+      'chhut': '出', 'tshut': '出', 'chhut-lâi': '出來', 'tshut-lâi': '出來', 'chhutlâi': '出來', 'tshutlâi': '出來',
+      'lâi': '來', 'khì': '去',
+      'chiò': '照', 'tsiò': '照',
+      'kóng': '講', 'thiaⁿ': '聽', 'thiann': '聽', 'khòaⁿ': '看', 'khuànn': '看',
+      'khòaⁿ-tio̍h': '看著', 'khuànn-tio̍h': '看著', 'thiaⁿ-tio̍h': '聽著', 'thiann-tio̍h': '聽著',
+      'chia̍h': '食', 'tsia̍h': '食', 'pá': '飽', 'chia̍h-pá': '食飽', 'tsia̍h-pá': '食飽',
+      'tāi-seng': '代先', 'tāi-sing': '代先', 'tāiseng': '代先', 'tāising': '代先',
+      'o-ló': '呵咾', 'o-ló͘': '呵咾', 'oló': '呵咾',
+      'tńg': '轉', 'tńg-lâi': '轉來', 'tńg-khì': '轉去',
+      'chhù': '厝', 'tshù': '厝', 'chhù-piⁿ': '厝邊', 'tshù-pinn': '厝邊', 'chhù-ni̍h': '厝裡', 'chhùni̍h': '厝裡',
+      'sè-chiūⁿ': '世上', 'sè-tsiūnn': '世上', 'sèchiūⁿ': '世上', 'chiūⁿ': '上', 'tsiūnn': '上',
+      'chheⁿ-mê': '青盲', 'tshenn-mê': '青盲', 'chheⁿmê': '青盲', 'tshenn-mî': '青盲',
+      'kòe': '過', 'kuè': '過', 'kòe-lâi': '過來', 'kuè-lâi': '過來', 'kòelâi': '過來', 'kuèlâi': '過來',
+      'kòe-khì': '過去', 'kuè-khì': '過去', 'kòekhì': '過去', 'kuèkhì': '過去',
+      'tshit-thô': '𨑨迌', 'chhit-thô': '𨑨迌', 'thit-thô': '𨑨迌', 'tshitthô': '𨑨迌', 'chhitthô': '𨑨迌',
+      'tshuā': '𤆬', 'chhōa': '𤆬',
+      'kāng': '仝', 'kāng-khoán': '仝款', 'kāng-khuán': '仝款',
+      'kin-á-ji̍t': '今仔日', 'kináji̍t': '今仔日', 'ji̍t-thâu': '日頭', 'ji̍tthâu': '日頭',
+      'taⁿ': '今', 'tann': '今', 'tiàm': '踮', 'tiàm-tī': '踮佇',
+      'súi': '媠', 'suí': '媠', 'bái': '䆀',
+      'tàu-tah': '鬥搭', 'tàutah': '鬥搭', 'tàu-tīn': '鬥陣', 'tàutīn': '鬥陣',
+      'poaⁿ': '搬', 'puann': '搬', 'pôaⁿ': '盤', 'puânn': '盤', 'poann5': '盤'
+    },
+
+    // 台語「全漢 ➔ 漢羅」核心漢羅化詞表 (依據杜信龍《護國 評論集》高頻漢羅用詞與傳統白話字漢羅習慣)
+    CORE_HAN2HL: {
+      // 多字高頻虛詞、連詞、代詞與台語特徵詞 (優先長詞匹配)
+      '毋閣': 'm̄-koh',
+      '毋通': 'm̄-thang',
+      '毋但': 'm̄-nā',
+      '毋是': 'm̄-sī',
+      '毋捌': 'm̄-bat',
+      '毋知': 'm̄-tsai',
+      '閣較': 'koh-khah',
+      '按呢': 'án-ne',
+      '按怎': 'án-tsuánn',
+      '家己': 'ka-tī',
+      '干焦': 'kan-taⁿ',
+      '會當': 'ē-tàng',
+      '會使': 'ē-sái',
+      '袂當': 'bē-tàng',
+      '袂使': 'bē-sái',
+      '遮的': 'tsia-ê',
+      '遐的': 'hia-ê',
+      '遐爾': 'hiah-nī',
+      '啥物': 'siánn-mih',
+      '甚物': 'sím-mi̍h',
+      '啥人': 'siánn-lâng',
+      '親像': 'tshan-tshiūnn',
+      '爾爾': 'niā-niā',
+      '抑是': 'ia̍h-sī',
+      '定著': 'tiānn-tio̍h',
+      '向望': 'ǹg-bāng',
+      '逐家': 'ta̍k-ke',
+      '這馬': 'tsit-má',
+      '這陣': 'tsit-tsūn',
+      '這个': 'tsit-ê',
+      '彼个': 'hit-ê',
+      '一个': 'tsi̍t-ê',
+      '一寡': 'tsi̍t-kuá',
+      '予人': 'hông',
+      '𨑨迌': 'tshit-thô',
+      '囡仔': 'gín-á',
+      '呵咾': 'o-ló',
+      '青盲': 'tshenn-mê',
+      '鬥搭': 'tàu-tah',
+      '推捒': 'tshui-sak',
+      '拍過來': 'phah過來',
+      '拍過去': 'phah過去',
+      '歹人': 'pháinn人',
+      '歹勢': 'pháinn-sè',
+      '歹看': 'pháinn看',
+      '歹聽': 'pháinn聽',
+      '看著': '看tio̍h',
+      '聽著': '聽tio̍h',
+      '佇遮': 'tī tsia',
+      '佇遐': 'tī hia',
+      // 單字高頻語法虛詞與特徵字 (長詞複合詞已由 Moedict 詞庫保護，不會誤轉複合詞內部字)
+      '的': 'ê',
+      '嘛': 'mā',
+      '閣': 'koh',
+      '毋': 'm̄',
+      '欲': 'beh',
+      '攏': 'lóng',
+      '咧': 'leh',
+      '佇': 'tī',
+      '敢': 'kám',
+      '共': 'kā',
+      '予': 'hōo',
+      '較': 'khah',
+      '佮': 'kap',
+      '煞': 'soah',
+      '袂': 'bē',
+      '莫': 'mài',
+      '捌': 'bat',
+      '徛': 'khiā',
+      '揣': 'tshuē',
+      '捒': 'sak',
+      '抾': 'khioh',
+      '囥': 'khǹg',
+      '𤆬': 'tshuā',
+      '歹': 'pháinn',
+      '囝': 'kiánn',
+      '媠': 'suí',
+      '䆀': 'bái'
     },
 
     buildCharFallback: function () {
@@ -535,6 +752,179 @@
       return root;
     },
 
+    getClChTrie: function (caseInsensitive = true) {
+      const cacheKey = caseInsensitive ? 'cl_ch_case_insensitive' : 'cl_ch_case_sensitive';
+      if (this._tries[cacheKey]) return this._tries[cacheKey];
+
+      const root = this._createTrieNode();
+      const hasLatinRegex = /[a-zA-Z\u00C0-\u024F\u1E00-\u1EFF]/;
+
+      const insertRawKey = (rawKey, hanVal, override) => {
+        const key = caseInsensitive ? rawKey.toLowerCase() : rawKey;
+        let curr = root;
+        for (let i = 0; i < key.length; i++) {
+          const ch = key[i];
+          let nextNode = curr.next.get(ch);
+          if (!nextNode) {
+            nextNode = this._createTrieNode();
+            curr.next.set(ch, nextNode);
+          }
+          curr = nextNode;
+        }
+        if (override || !curr.val) {
+          curr.val = hanVal;
+          curr.src = rawKey;
+        }
+      };
+
+      const insertEntry = (romKey, hanVal, override = false) => {
+        if (!romKey || !hanVal) return;
+        const cleanRom = romKey.trim();
+        if (!cleanRom) return;
+        // Normalize key to POJ so we only store 1 canonical orthography in the Trie (10x faster build)
+        const pojForm = this.tl2cl(cleanRom);
+        insertRawKey(pojForm, hanVal, override);
+        // For short 2-3 syllable words with hyphens (e.g. ji̍t-thâu), also index the unhyphenated form
+        if (pojForm.length <= 18 && pojForm.includes('-') && !pojForm.startsWith('-') && !pojForm.endsWith('-')) {
+          insertRawKey(pojForm.replace(/-/g, ''), hanVal, override);
+        }
+      };
+
+      // Priority 1: 台語核心高頻字詞／虛詞推薦漢字表 (最高優先，消除單音節同音字歧義)
+      for (const [rom, han] of Object.entries(this.CORE_ROM2HAN)) {
+        insertEntry(rom, han, true);
+      }
+
+      // Priority 2: TWCD cl_hl 經典片語庫 (28,347 筆純漢字詞條直接收錄)
+      const clHlList = (this.data && this.data.cl_hl) || [];
+      for (let i = 0; i < clHlList.length; i++) {
+        const { c, h } = clHlList[i];
+        if (!c || !h || hasLatinRegex.test(h)) continue;
+        insertEntry(c, h, false);
+      }
+
+      // Priority 3: 教育部 / 萌典標準詞庫 (20,604 筆官方推薦純漢字詞條)
+      const moedict = this.getMoedictData();
+      for (const [word, info] of Object.entries(moedict)) {
+        if (!info.t || hasLatinRegex.test(word)) continue;
+        const readings = info.t.split('/');
+        for (let r = 0; r < readings.length; r++) {
+          const cleanR = readings[r].trim();
+          if (cleanR) insertEntry(cleanR, word, false);
+        }
+      }
+
+      // Priority 4: 使用者特藏詞庫 (杜信龍《七字孽》、鄭仁壽《內外科看護學》、杜信龍《護國》純漢詞目)
+      const uDicts = this.getUserDicts();
+      for (const [word, info] of Object.entries(uDicts.chhitjia || {})) {
+        if (info.r && !hasLatinRegex.test(word)) {
+          insertEntry(info.r, word, false);
+        }
+      }
+      for (const [word, info] of Object.entries(uDicts.hokkok || {})) {
+        if (info.r && !hasLatinRegex.test(word)) {
+          insertEntry(info.r, word, false);
+        }
+      }
+      const mList = uDicts.laigoakho || [];
+      for (let i = 0; i < mList.length; i++) {
+        const item = mList[i];
+        if (item.p && item.h && !hasLatinRegex.test(item.h)) {
+          insertEntry(item.p, item.h, false);
+        }
+      }
+
+      // Priority 0: 使用者自訂規則 (Custom rules override all)
+      const customList = this.custom.cl_hl || [];
+      for (let i = 0; i < customList.length; i++) {
+        const { c, h } = customList[i];
+        if (c && h && !hasLatinRegex.test(h)) {
+          insertEntry(c, h, true);
+        }
+      }
+
+      this._tries[cacheKey] = root;
+      return root;
+    },
+
+    getChHlTrie: function (outputStyle = 'tailo') {
+      const cacheKey = outputStyle === 'poj' ? 'ch_hl_poj' : 'ch_hl_tailo';
+      if (this._tries[cacheKey]) return this._tries[cacheKey];
+
+      const root = this._createTrieNode();
+      const hasLatinRegex = /[a-zA-Z\u00C0-\u024F\u1E00-\u1EFF]/;
+
+      const formatRoman = (str) => {
+        if (!str) return '';
+        return outputStyle === 'poj' ? this.tl2cl(str) : this.cl2tl(str);
+      };
+
+      // Step 1: Insert multi-character pure-Hanzi compound words from Moedict & Chhitjia as protected compounds
+      // (Prevents false-positive conversion of single-char particles like 的/共/著/會/才 inside compound words like 目的/共同/教會/著作)
+      const moedict = this.getMoedictData();
+      for (const word of Object.keys(moedict)) {
+        if (Array.from(word).length >= 2 && !hasLatinRegex.test(word)) {
+          let curr = root;
+          for (const ch of word) {
+            if (!curr.next.has(ch)) curr.next.set(ch, this._createTrieNode());
+            curr = curr.next.get(ch);
+          }
+          curr.val = word;
+          curr.src = word;
+          curr.isNoTran = true;
+        }
+      }
+
+      const uDicts = this.getUserDicts();
+      for (const word of Object.keys(uDicts.chhitjia || {})) {
+        if (Array.from(word).length >= 2 && !hasLatinRegex.test(word)) {
+          let curr = root;
+          for (const ch of word) {
+            if (!curr.next.has(ch)) curr.next.set(ch, this._createTrieNode());
+            curr = curr.next.get(ch);
+          }
+          if (!curr.val) {
+            curr.val = word;
+            curr.src = word;
+            curr.isNoTran = true;
+          }
+        }
+      }
+
+      // Step 2: Insert CORE_HAN2HL (Overrides protected compounds for genuine Hàn-lô target expressions like 毋閣, 按呢, 家己, 𨑨迌, 囡仔)
+      for (const [han, hl] of Object.entries(this.CORE_HAN2HL)) {
+        let curr = root;
+        for (const ch of han) {
+          if (!curr.next.has(ch)) curr.next.set(ch, this._createTrieNode());
+          curr = curr.next.get(ch);
+        }
+        curr.val = formatRoman(hl);
+        curr.src = han;
+        curr.isNoTran = false;
+      }
+
+      // Step 3: Supplement from Hokkok (杜信龍《護國 評論集》) multi-syllable Romanized expressions mapped via Moedict
+      const hokkok = uDicts.hokkok || {};
+      for (const [word, info] of Object.entries(moedict)) {
+        if (!info.t || Array.from(word).length < 2) continue;
+        const firstReading = info.t.split('/')[0].trim();
+        const pojReading = this.tl2cl(firstReading);
+        if ((hokkok[firstReading] && hokkok[firstReading].c >= 5) || (hokkok[pojReading] && hokkok[pojReading].c >= 5)) {
+          let curr = root;
+          for (const ch of word) {
+            if (!curr.next.has(ch)) curr.next.set(ch, this._createTrieNode());
+            curr = curr.next.get(ch);
+          }
+          curr.val = formatRoman(firstReading);
+          curr.src = word;
+          curr.isNoTran = false;
+        }
+      }
+
+      this._tries[cacheKey] = root;
+      return root;
+    },
+
     getRubyTrie: function () {
       if (this._tries.ruby) return this._tries.ruby;
       const root = this._createTrieNode();
@@ -588,7 +978,7 @@
       if (!text) return { result: '', highlights: [], stats: { matched: 0, timeMs: 0 } };
       const startTime = performance.now();
       options = Object.assign({
-        style: 'hanlo',       // 'hanlo', 'tailo', 'poj'
+        style: 'hanlo',       // 'hanlo', 'chuanhan', 'tailo', 'poj'
         useNoTran: true,
         diffHighlight: false
       }, options);
@@ -643,6 +1033,12 @@
           englishPunctuation: true
         });
         out = clRes.result;
+      } else if (options.style === 'chuanhan') {
+        const chRes = this.hl2ch(out, {
+          caseInsensitive: true,
+          chinesePunctuation: false
+        });
+        out = chRes.result;
       }
 
       const elapsed = performance.now() - startTime;
@@ -702,6 +1098,207 @@
 
       // Cleanup consecutive spaces
       out = out.replace(/[ \t]{2,}/g, ' ');
+
+      const elapsed = performance.now() - startTime;
+      return {
+        result: out,
+        stats: { matched: matchCount, timeMs: Math.round(elapsed * 10) / 10 }
+      };
+    },
+
+    // ----------------------------------------------------
+    // 3b. 漢羅/全羅轉全漢 (Hàn-lô / Chôan-lô -> Chôan-hàn) [純漢字輸出]
+    // ----------------------------------------------------
+    hl2ch: function (text, options) {
+      if (!text) return { result: '', stats: { matched: 0, timeMs: 0 } };
+      const startTime = performance.now();
+      options = Object.assign({
+        caseInsensitive: true,
+        chinesePunctuation: true
+      }, options);
+
+      // Convert any numbered tone syllables (e.g. tioh8, poann5) to Unicode tone marks, then normalize Tâi-lô to POJ
+      let processed = text.replace(/\b([a-zA-Z]+(?:nn|ⁿ)?[1-9])\b/g, (m) => {
+        return this.ctsConvert(m, 'tailo_num', 'poj_unicode');
+      });
+      processed = this.tl2cl(processed);
+
+      const trie = this.getClChTrie(options.caseInsensitive);
+      const chars = Array.from(processed);
+      const isLatinChar = (c) => c && /[a-zA-Z\u00C0-\u024F\u1E00-\u1EFF\u0300-\u036Fⁿ\u0358]/.test(c);
+
+      // Helper to segment glued 2-syllable Romanized words (e.g. limtio̍h -> lim + tio̍h -> 飲著)
+      const trySegmentCompound = (wordStr) => {
+        if (wordStr.length < 4 || wordStr.length > 16) return null;
+        const w = options.caseInsensitive ? wordStr.toLowerCase() : wordStr;
+        const lookupSingle = (sub) => {
+          let node = trie;
+          for (let k = 0; k < sub.length; k++) {
+            if (!node.next.has(sub[k])) return null;
+            node = node.next.get(sub[k]);
+          }
+          return node.val;
+        };
+        for (let split = 2; split <= w.length - 2; split++) {
+          const leftVal = lookupSingle(w.slice(0, split));
+          if (leftVal) {
+            const rightVal = lookupSingle(w.slice(split));
+            if (rightVal) return leftVal + rightVal;
+          }
+        }
+        return null;
+      };
+
+      let out = '';
+      let matchCount = 0;
+      let i = 0;
+
+      while (i < chars.length) {
+        // Preserve HTML tags if present (e.g., <mark> from hg2tg)
+        if (chars[i] === '<') {
+          const rest = chars.slice(i).join('');
+          const tagMatch = rest.match(/^<[^>]+>/);
+          if (tagMatch) {
+            out += tagMatch[0];
+            i += Array.from(tagMatch[0]).length;
+            continue;
+          }
+        }
+
+        // Only start Romanization Trie matching at a non-mid-word boundary
+        const atWordStart = (i === 0 || !isLatinChar(chars[i - 1]));
+        if (atWordStart && isLatinChar(chars[i])) {
+          let curr = trie;
+          let longestMatch = null;
+          let longestMatchLen = 0;
+
+          for (let j = i; j < chars.length; j++) {
+            const ch = options.caseInsensitive ? chars[j].toLowerCase() : chars[j];
+            if (!curr.next.has(ch)) break;
+            curr = curr.next.get(ch);
+            if (curr.val !== null) {
+              const nextCh = chars[j + 1];
+              // Valid end boundary: end of string, non-Latin character (space, hyphen, punctuation, Hanzi)
+              if (!isLatinChar(nextCh)) {
+                longestMatch = curr.val;
+                longestMatchLen = j - i + 1;
+              }
+            }
+          }
+
+          if (longestMatch !== null) {
+            out += longestMatch;
+            matchCount++;
+            i += longestMatchLen;
+            // If immediately followed by a hyphen connecting another syllable (e.g. X-Y), skip the hyphen
+            if (chars[i] === '-' && isLatinChar(chars[i + 1])) {
+              i++;
+            }
+            continue;
+          } else {
+            // Collect whole Latin word and check if it is a glued 2-syllable Taiwanese compound (e.g. limtio̍h)
+            let wordEnd = i;
+            while (wordEnd < chars.length && isLatinChar(chars[wordEnd])) {
+              wordEnd++;
+            }
+            const wordToken = chars.slice(i, wordEnd).join('');
+            const segmented = trySegmentCompound(wordToken);
+            if (segmented) {
+              out += segmented;
+              matchCount++;
+            } else {
+              out += wordToken;
+            }
+            i = wordEnd;
+            continue;
+          }
+        }
+
+        out += chars[i];
+        i++;
+      }
+
+      // Remove spaces between Chinese characters in 全漢 output
+      const hanRegex = /([\u4e00-\u9fff\u3400-\u4dbf\u{20000}-\u{2ebe0}]|<\/mark>)[ \t]+(?=[\u4e00-\u9fff\u3400-\u4dbf\u{20000}-\u{2ebe0}]|<mark)/gu;
+      out = out.replace(hanRegex, '$1');
+      out = out.replace(hanRegex, '$1');
+
+      // Convert half-width punctuation next to Chinese characters to full-width Chinese punctuation if requested
+      if (options.chinesePunctuation) {
+        out = out
+          .replace(/([\u4e00-\u9fff\u3400-\u4dbf\u{20000}-\u{2ebe0}])[ \t]*,[ \t]*/gu, '$1，')
+          .replace(/([\u4e00-\u9fff\u3400-\u4dbf\u{20000}-\u{2ebe0}])[ \t]*\.[ \t]*/gu, '$1。')
+          .replace(/([\u4e00-\u9fff\u3400-\u4dbf\u{20000}-\u{2ebe0}])[ \t]*![ \t]*/gu, '$1！')
+          .replace(/([\u4e00-\u9fff\u3400-\u4dbf\u{20000}-\u{2ebe0}])[ \t]*\?[ \t]*/gu, '$1？')
+          .replace(/([\u4e00-\u9fff\u3400-\u4dbf\u{20000}-\u{2ebe0}])[ \t]*:[ \t]*/gu, '$1：')
+          .replace(/([\u4e00-\u9fff\u3400-\u4dbf\u{20000}-\u{2ebe0}])[ \t]*;[ \t]*/gu, '$1；');
+      }
+
+      const elapsed = performance.now() - startTime;
+      return {
+        result: out,
+        stats: { matched: matchCount, timeMs: Math.round(elapsed * 10) / 10 }
+      };
+    },
+
+    // ----------------------------------------------------
+    // 3c. 全漢轉漢羅 (Chôan-hàn -> Hàn-lô) [自然台語漢羅混寫]
+    // ----------------------------------------------------
+    ch2hl: function (text, options) {
+      if (!text) return { result: '', stats: { matched: 0, timeMs: 0 } };
+      const startTime = performance.now();
+      options = Object.assign({
+        outputStyle: 'tailo' // 'tailo' or 'poj'
+      }, options);
+
+      const trie = this.getChHlTrie(options.outputStyle);
+      const chars = Array.from(text);
+      const isLatinEnd = (s) => s && /[a-zA-Z\u00C0-\u024F\u1E00-\u1EFF\u0300-\u036Fⁿ\u0358]$/.test(s);
+      const isLatinStart = (s) => s && /^[a-zA-Z\u00C0-\u024F\u1E00-\u1EFF\u0300-\u036Fⁿ\u0358]/.test(s);
+
+      let out = '';
+      let matchCount = 0;
+      let i = 0;
+
+      while (i < chars.length) {
+        let curr = trie;
+        let longestNode = null;
+        let longestMatchLen = 0;
+
+        for (let j = i; j < chars.length; j++) {
+          const ch = chars[j];
+          if (!curr.next.has(ch)) break;
+          curr = curr.next.get(ch);
+          if (curr.val !== null) {
+            longestNode = curr;
+            longestMatchLen = j - i + 1;
+          }
+        }
+
+        if (longestNode !== null) {
+          const replacement = longestNode.val;
+          if (!longestNode.isNoTran) {
+            // Insert space if previous output ended with a Latin character and replacement starts with a Latin character
+            if (isLatinEnd(out) && isLatinStart(replacement)) {
+              out += ' ';
+            }
+            out += replacement;
+            matchCount++;
+          } else {
+            out += replacement;
+          }
+          i += longestMatchLen;
+        } else {
+          // If existing text has Latin characters (e.g. already partially Hàn-lô), convert style if needed
+          const ch = chars[i];
+          if (isLatinEnd(out) && isLatinStart(ch)) {
+            out += ch;
+          } else {
+            out += ch;
+          }
+          i++;
+        }
+      }
 
       const elapsed = performance.now() - startTime;
       return {
@@ -879,6 +1476,18 @@
     cl2hlAsync: function (text, options) {
       return new Promise((resolve) => {
         setTimeout(() => resolve(this.cl2hl(text, options)), 0);
+      });
+    },
+
+    hl2chAsync: function (text, options) {
+      return new Promise((resolve) => {
+        setTimeout(() => resolve(this.hl2ch(text, options)), 0);
+      });
+    },
+
+    ch2hlAsync: function (text, options) {
+      return new Promise((resolve) => {
+        setTimeout(() => resolve(this.ch2hl(text, options)), 0);
       });
     },
 

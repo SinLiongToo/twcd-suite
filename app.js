@@ -242,11 +242,11 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   // ---------------------------------------------------------------------
-  // TAB 2: 漢羅 ⇄ 全羅 (HL <-> CL)
+  // TAB 2: 漢羅 ⇄ 全羅 / 全漢 (HL <-> CL <-> CH)
   // ---------------------------------------------------------------------
   const hlclInput = document.getElementById('hlcl-input');
   const hlclOutput = document.getElementById('hlcl-output');
-  const hlclMode = document.getElementById('hlcl-mode'); // 'hl2cl' or 'cl2hl'
+  const hlclMode = document.getElementById('hlcl-mode'); // 'hl2cl', 'cl2hl', 'hl2ch', 'ch2hl'
   const hlclRomanStyle = document.getElementById('hlcl-roman-style'); // 'tailo' or 'poj'
   const hlclCaseCheck = document.getElementById('hlcl-case-check');
   const hlclFallbackCheck = document.getElementById('hlcl-fallback-check');
@@ -280,11 +280,19 @@ document.addEventListener('DOMContentLoaded', function () {
     if (mode === 'hl2cl') {
       const res = await Engine.hl2clAsync(text, { outputStyle: style, useFallback, englishPunctuation, useHyphens });
       hlclOutput.value = res.result;
-      hlclStatus.textContent = `漢羅轉全羅完成：耗時 ${res.stats.timeMs}ms | 匹配 ${res.stats.matched} 處詞彙`;
-    } else {
+      hlclStatus.textContent = `漢羅/全漢轉全羅完成：耗時 ${res.stats.timeMs}ms | 匹配 ${res.stats.matched} 處詞彙`;
+    } else if (mode === 'cl2hl') {
       const res = await Engine.cl2hlAsync(text, { isTaiLoInput: (style === 'tailo'), caseInsensitive });
       hlclOutput.value = res.result;
       hlclStatus.textContent = `全羅轉漢羅完成：耗時 ${res.stats.timeMs}ms | 匹配 ${res.stats.matched} 處詞彙`;
+    } else if (mode === 'hl2ch') {
+      const res = await Engine.hl2chAsync(text, { caseInsensitive, chinesePunctuation: !englishPunctuation });
+      hlclOutput.value = res.result;
+      hlclStatus.textContent = `漢羅/全羅轉全漢完成：耗時 ${res.stats.timeMs}ms | 轉換 ${res.stats.matched} 處羅馬字詞彙`;
+    } else if (mode === 'ch2hl') {
+      const res = await Engine.ch2hlAsync(text, { outputStyle: style });
+      hlclOutput.value = res.result;
+      hlclStatus.textContent = `全漢轉漢羅完成：耗時 ${res.stats.timeMs}ms | 轉換 ${res.stats.matched} 處漢羅詞彙`;
     }
   }
 
@@ -301,16 +309,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function updateHlclPlaceholders() {
     if (hlclMode.value === 'hl2cl') {
-      hlclInput.placeholder = '請輸入台語漢羅文章（例如：日頭出來照好人，mā照pháiⁿ人...）';
-    } else {
+      hlclInput.placeholder = '請輸入台語漢羅或全漢文章（例如：日頭出來照好人，mā照pháiⁿ人...）';
+    } else if (hlclMode.value === 'cl2hl') {
       hlclInput.placeholder = '請輸入白話字或台羅全羅文章（例如：Ji̍tthâu chhut lâi chiò hó lâng...）';
+    } else if (hlclMode.value === 'hl2ch') {
+      hlclInput.placeholder = '請輸入台語漢羅或全羅文章，將轉為教育部推薦全漢字（例如：伊ê父母應講：阮mā知伊是阮ê kiáⁿ，m̄-koh...）';
+    } else if (hlclMode.value === 'ch2hl') {
+      hlclInput.placeholder = '請輸入台語全漢字文章，將轉為自然漢羅混寫（例如：伊的父母應講：阮嘛知伊是阮的囝，毋閣逐家攏欲來𨑨迌...）';
     }
   }
 
   hlclSwapBtn.addEventListener('click', () => {
     const tempIn = hlclInput.value;
     const tempOut = hlclOutput.value;
-    hlclMode.value = (hlclMode.value === 'hl2cl') ? 'cl2hl' : 'hl2cl';
+    const swapMap = {
+      hl2cl: 'cl2hl',
+      cl2hl: 'hl2cl',
+      hl2ch: 'ch2hl',
+      ch2hl: 'hl2ch'
+    };
+    hlclMode.value = swapMap[hlclMode.value] || 'hl2cl';
     updateHlclPlaceholders();
     hlclInput.value = tempOut || tempIn;
     doHlclConvert();
@@ -319,8 +337,12 @@ document.addEventListener('DOMContentLoaded', function () {
   hlclExampleBtn.addEventListener('click', () => {
     if (hlclMode.value === 'hl2cl') {
       hlclInput.value = '日頭出來照好人，mā照pháiⁿ人。教會三十三週年記念，phah過來phah過去，真無同感！';
-    } else {
+    } else if (hlclMode.value === 'cl2hl') {
       hlclInput.value = 'Iâ-so͘ kā i kóng: tio̍h hō͘ gín-á tāi-seng chia̍h pá. Ji̍tthâu chhut lâi chiò hó lâng!';
+    } else if (hlclMode.value === 'hl2ch') {
+      hlclInput.value = '日頭出來照好人，mā照pháiⁿ人。伊ê父母kā伊講：m̄-koh lán ta̍k-ke lóng beh去tshit-thô，khòaⁿ-tio̍h gín-á真可愛！';
+    } else if (hlclMode.value === 'ch2hl') {
+      hlclInput.value = '日頭出來照好人，嘛照歹人。伊的父母共伊講：毋閣咱逐家攏欲去𨑨迌，看著囡仔真可愛！';
     }
     doHlclConvert();
   });
@@ -333,7 +355,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   hlclCopyBtn.addEventListener('click', () => {
     if (!hlclOutput.value) return;
-    navigator.clipboard.writeText(hlclOutput.value).then(() => showToast('已複製全羅/漢羅結果！'));
+    navigator.clipboard.writeText(hlclOutput.value).then(() => showToast('已複製轉換結果！'));
   });
 
   hlclSpeakBtn.addEventListener('click', () => {

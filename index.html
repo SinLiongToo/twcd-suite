@@ -140,7 +140,7 @@
           <span class="mr-2">🈳</span>華語轉台語 (HG → TG)
         </button>
         <button class="nav-tab border-b-2 py-2 px-3 inline-flex items-center text-sm font-medium border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400" data-tab="hl_cl">
-          <span class="mr-2">🔄</span>漢羅 ⇄ 全羅 (HL ⇄ CL)
+          <span class="mr-2">🔄</span>漢羅 ⇄ 全羅 / 全漢
         </button>
         <button class="nav-tab border-b-2 py-2 px-3 inline-flex items-center text-sm font-medium border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400" data-tab="ruby">
           <span class="mr-2">🔤</span>台語 Ruby 標音
@@ -172,6 +172,7 @@
             <label class="font-medium text-slate-700 dark:text-slate-300">輸出風格：</label>
             <select id="hg-style" class="bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500">
               <option value="hanlo">漢羅台文 (推薦)</option>
+              <option value="chuanhan">全漢台文 (教育部推薦漢字)</option>
               <option value="tailo">教育部台羅全羅 (Tâi-lô)</option>
               <option value="poj">白話字教羅全羅 (POJ)</option>
             </select>
@@ -230,7 +231,7 @@
     </div>
 
     <!-- =================================================================== -->
-    <!-- TAB 2: 漢羅 ⇄ 全羅 (HL ⇄ CL) -->
+    <!-- TAB 2: 漢羅 ⇄ 全羅 / 全漢 (HL ⇄ CL ⇄ CH) -->
     <!-- =================================================================== -->
     <div id="pane-hl_cl" class="tab-pane hidden space-y-4">
       <div class="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-4">
@@ -238,8 +239,10 @@
           <div class="flex items-center space-x-2">
             <label class="font-medium text-slate-700 dark:text-slate-300">轉換模式：</label>
             <select id="hlcl-mode" class="bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 text-sm font-semibold text-indigo-600 dark:text-indigo-400 focus:ring-2 focus:ring-indigo-500">
-              <option value="hl2cl">漢羅 (HL) ➔ 全羅 (CL)</option>
+              <option value="hl2cl">漢羅 / 全漢 (HL/CH) ➔ 全羅 (CL)</option>
               <option value="cl2hl">全羅 (CL) ➔ 漢羅 (HL)</option>
+              <option value="hl2ch">漢羅 / 全羅 (HL/CL) ➔ 全漢 (CH)</option>
+              <option value="ch2hl">全漢 (CH) ➔ 漢羅 (HL)</option>
             </select>
           </div>
           <div class="flex items-center space-x-2">
