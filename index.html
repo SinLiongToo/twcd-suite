@@ -103,7 +103,7 @@
         <div>
           <div class="flex items-center space-x-2">
             <h1 class="text-lg font-bold text-slate-900 dark:text-white tracking-tight">TWCD 台語數位工具箱</h1>
-            <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">Next-Gen v2.7</span>
+            <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">Next-Gen v2.8</span>
           </div>
           <p class="text-xs text-slate-500 dark:text-slate-400">離線逆向重構 • 華台翻譯 • 漢羅/全羅/全漢 • Ruby標音 • 教育部真人音檔</p>
         </div>
@@ -865,8 +865,20 @@
       <div id="modal-content-changelog" class="hidden space-y-3 text-xs leading-relaxed">
         <div class="p-3 bg-indigo-50/70 dark:bg-indigo-950/40 rounded-xl border border-indigo-200 dark:border-indigo-800">
           <div class="flex items-center justify-between font-bold text-indigo-700 dark:text-indigo-300 mb-1">
+            <span>v2.8 (白話字 POJ eng/ek 音節正字法全面校準版)</span>
+            <span class="text-[10px] text-indigo-500 font-bold">當前版本 (2026.10.17)</span>
+          </div>
+          <ul class="list-disc list-inside space-y-0.5 text-slate-600 dark:text-slate-300">
+            <li><strong>🔤 白話字 (POJ) 江/梗/曾/明韻 <code>eng</code> / <code>ek</code> 全面校準</strong>：台羅 (Tâi-lô) 之 <code>ing</code> / <code>ik</code> 在白話字規範中一律拼寫為 <code>eng</code> / <code>ek</code>。徹底修正過往僅替換無聲調 <code>ing/ik</code>，導致帶聲調詞彙（<code>íng</code>, <code>ìng</code>, <code>îng</code>, <code>īng</code>, <code>i̍ng</code>, <code>ík</code>, <code>èk</code>, <code>i̍k</code>）殘留之瑕疵。</li>
+            <li><strong>✨ 全域轉譯與標音正字化</strong>：<code>光明</code> ➔ <code>Kong-bêng</code>、<code>請求</code> ➔ <code>Chhéng-kiû</code>、<code>成功</code> ➔ <code>Sêng-kong</code>、<code>特別</code> ➔ <code>Te̍k-pia̍t</code>、<code>歷史</code> ➔ <code>Le̍k-sú</code>、<code>精神</code> ➔ <code>Cheng-sîn</code>、<code>流行</code> ➔ <code>Liû-hêng</code>、<code>證明</code> ➔ <code>Chèng-bêng</code>、<code>肯定</code> ➔ <code>Khéng-tēng</code>。</li>
+            <li><strong>🔄 雙向引擎全面相容</strong>：<code>cl2tl</code>、<code>tl2cl</code>、<code>normalizePoj</code>、CTS 音標編碼轉換器與台語 Ruby 標音引擎同步升級，雙向轉換無損且完全符合正字法規範。</li>
+          </ul>
+        </div>
+
+        <div class="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700/60">
+          <div class="flex items-center justify-between font-bold text-slate-700 dark:text-slate-300 mb-1">
             <span>v2.7 (白話字 POJ 標調正字法全面校準與極速輸入效能升級版)</span>
-            <span class="text-[10px] text-indigo-500 font-bold">當前版本 (2026.10.16)</span>
+            <span class="text-[10px] text-slate-400">歷程版本 (2026.10.16)</span>
           </div>
           <ul class="list-disc list-inside space-y-0.5 text-slate-600 dark:text-slate-300">
             <li><strong>✨ 白話字 POJ 標調正字法全面校準</strong>：嚴格落實白話字正字法聲調優先權（<code>o &gt; e &gt; a &gt; u &gt; i</code>），徹底修正 <code>oe</code> 音節聲調位置（除 <code>oeh</code> 在 <code>e</code> 如 <code>oe̍h</code> 外，其餘如 <code>òe</code>、<code>óe</code>、<code>ōe</code> 標調均嚴格置於 <code>o</code>，如 <code>過去</code> ➔ <code>Kòe-khì</code>、<code>開會</code> ➔ <code>Khui-hōe</code>）；並校準 <code>oa</code>（<code>óa</code>/<code>oán</code>）與 <code>o͘</code>（<code>ó͘</code>/<code>Lō͘</code>）之聲調位置。</li>

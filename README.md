@@ -4,12 +4,12 @@
 > 純前端 • 100% 離線運行 • 免裝 Java • 毫秒級極速轉換 • 支援教育部 Ext-B 擴充漢字
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-success?logo=github)](https://sinliongtoo.github.io/twcd-suite/)
-[![Version](https://img.shields.io/badge/Version-v2.7-indigo)](#)
+[![Version](https://img.shields.io/badge/Version-v2.8-indigo)](#)
 [![Language](https://img.shields.io/badge/Language-JavaScript%20%7C%20HTML5%20%7C%20CSS3-blue)](#)
 [![Data](https://img.shields.io/badge/Dictionary-113%2C000%2B%20Entries-emerald)](#)
 [![Audio](https://img.shields.io/badge/Audio-21%2C700%2B%20Native%20Recordings-red)](#)
 [![Visitors](https://hits.sh/sinliongtoo.github.io/twcd-suite.svg?view=today-total&style=flat-square&label=%E4%BD%BF%E7%94%A8%E4%BA%BA%E6%AC%A1&color=4f46e5)](https://hits.sh/sinliongtoo.github.io/twcd-suite/)
-[![Updated](https://img.shields.io/badge/Updated-2026--10--16-blue)](#)
+[![Updated](https://img.shields.io/badge/Updated-2026--10--17-blue)](#)
 [![Offline](https://img.shields.io/badge/Offline-100%25%20Zero--Dependency-indigo)](#)
 [![License](https://img.shields.io/badge/License-Academic%20%26%20Open%20Source-amber)](#)
 
@@ -216,7 +216,25 @@ node build_user_dicts.js
 
 ## 📜 版本演進與變更紀錄 (Changelog)
 
-### **v2.7 (白話字 POJ 標調正字法全面校準與極速輸入效能升級版 - 當前版本 2026.10.16)**
+### **v2.8 (白話字 POJ eng/ek 音節正字法全面校準版 - 當前版本 2026.10.17)**
+- **🔤 白話字 (POJ) 江/梗/曾/明韻 `eng` / `ek` 全面校準**：
+  - 嚴格落實白話字正字法規範：台羅 (Tâi-lô) 之 `ing` / `ik`（江/梗/曾/明等文讀韻）在白話字 (POJ) 規範中**一律拼寫為 `eng` / `ek`**。
+  - 徹底修正過往僅替換無聲調 `ing/ik`，導致帶聲調詞彙（如第 2、3、5、7、8 調的 `íng`, `ìng`, `îng`, `īng`, `i̍ng`, `ík`, `èk`, `i̍k`）在轉譯時依然殘留 `ing/ik` 的長期瑕疵。
+  - 全域修正涵蓋所有轉譯模組：
+    - `光明` ➔ 白話字 `Kong-bêng`（不再誤作 `Kong-bîng`）
+    - `請求` ➔ 白話字 `Chhéng-kiû`（不再誤作 `Chhíng-kiû`）
+    - `成功` ➔ 白話字 `Sêng-kong`（不再誤作 `Sîng-kong`）
+    - `特別` ➔ 白話字 `Te̍k-pia̍t`（不再誤作 `Ti̍k-pia̍t`）
+    - `歷史` ➔ 白話字 `Le̍k-sú`（不再誤作 `Li̍k-sú`）
+    - `精神` ➔ 白話字 `Cheng-sîn`（不再誤作 `Tsing-sîn`）
+    - `流行` ➔ 白話字 `Liû-hêng`（不再誤作 `Liû-hîng`）
+    - `證明` ➔ 白話字 `Chèng-bêng`（不再誤作 `Tsìng-bîng`）
+    - `肯定` ➔ 白話字 `Khéng-tēng`（不再誤作 `Khíng-tīng`）
+  - 同步校準 `cl2tl` 雙向反轉演算法、CTS 音標編碼轉換器與台語 Ruby 標音引擎（`annotateRuby`），確保台羅與白話字雙向轉換、標音均完美符合正字法規範。
+
+---
+
+### **v2.7 (白話字 POJ 標調正字法全面校準與極速輸入效能升級版 - 2026.10.16)**
 - **✨ 白話字 POJ 標調正字法全面校準**：
   - 嚴格落實白話字正字法聲調優先權（`o > e > a > u > i > ng > m`）。
   - 徹底修正 `oe` 音節聲調位置：除 `oeh`（如 `oe̍h`）聲調在 `e` 外，其餘所有 `oe` 音節之聲調符號**一律置於 `o`**（例如 `òe`, `óe`, `ōe`, `ôe`, `o̍e`, `ǒe`），徹底解決 `過去` 轉為 `Koè-khì`、`開會` 轉為 `Khui-hoē` 的歷史問題，全域正確輸出 `Kòe-khì`、`Khui-hōe`、`Kóng-ōe`、`Bóe-á`。

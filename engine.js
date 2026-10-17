@@ -1848,6 +1848,14 @@
         .replace(/ou/g, 'oo').replace(/Ou/g, 'Oo').replace(/OU/g, 'OO')
         .replace(/oa/g, 'ua').replace(/Oa/g, 'Ua').replace(/OA/g, 'UA')
         .replace(/oe/g, 'ue').replace(/Oe/g, 'Ue').replace(/OE/g, 'UE')
+        .replace(/([eE])\u030dng/g, (m, eChar) => (eChar === 'E' ? 'I' : 'i') + '\u030dng')
+        .replace(/([eE])\u030dk/g, (m, eChar) => (eChar === 'E' ? 'I' : 'i') + '\u030dk')
+        .replace(/éng/g, 'íng').replace(/èng/g, 'ìng').replace(/êng/g, 'îng').replace(/ēng/g, 'īng').replace(/ěng/g, 'ǐng')
+        .replace(/Éng/g, 'Íng').replace(/Èng/g, 'Ìng').replace(/Êng/g, 'Îng').replace(/Ēng/g, 'Īng').replace(/Ěng/g, 'Ǐng')
+        .replace(/ÉNG/g, 'ÍNG').replace(/ÈNG/g, 'ÌNG').replace(/ÊNG/g, 'ÎNG').replace(/ĒNG/g, 'ĪNG')
+        .replace(/ék/g, 'ík').replace(/èk/g, 'ìk').replace(/ěk/g, 'ǐk')
+        .replace(/Ék/g, 'Ík').replace(/Èk/g, 'Ìk').replace(/Ěk/g, 'Ǐk')
+        .replace(/ÉK/g, 'ÍK').replace(/ÈK/g, 'ÌK')
         .replace(/eng/g, 'ing').replace(/Eng/g, 'Ing').replace(/ENG/g, 'ING')
         .replace(/ek/g, 'ik').replace(/Ek/g, 'Ik').replace(/EK/g, 'IK')
         .replace(/ⁿ/g, 'nn').replace(/N(?=[^a-zA-Z]|$)/g, 'nn');
@@ -1915,6 +1923,19 @@
         return baseO + (isUpperA ? 'A' : 'a');
       });
 
+      // 3. Fix ing -> eng, ik -> ek in POJ
+      s = s
+        .replace(/([iI])\u030dng/g, (m, iChar) => (iChar === 'I' ? 'E' : 'e') + '\u030dng')
+        .replace(/([iI])\u030dk/g, (m, iChar) => (iChar === 'I' ? 'E' : 'e') + '\u030dk')
+        .replace(/íng/g, 'éng').replace(/ìng/g, 'èng').replace(/îng/g, 'êng').replace(/īng/g, 'ēng').replace(/ǐng/g, 'ěng')
+        .replace(/Íng/g, 'Éng').replace(/Ìng/g, 'Èng').replace(/Îng/g, 'Êng').replace(/Īng/g, 'Ēng').replace(/Ǐng/g, 'Ěng')
+        .replace(/ÍNG/g, 'ÉNG').replace(/ÌNG/g, 'ÈNG').replace(/ÎNG/g, 'ÊNG').replace(/ĪNG/g, 'ĒNG')
+        .replace(/ík/g, 'ék').replace(/ìk/g, 'èk').replace(/ǐk/g, 'ěk')
+        .replace(/Ík/g, 'Ék').replace(/Ìk/g, 'Èk').replace(/Ǐk/g, 'Ěk')
+        .replace(/ÍK/g, 'ÉK').replace(/ÌK/g, 'ÈK')
+        .replace(/ing/g, 'eng').replace(/Ing/g, 'Eng').replace(/ING/g, 'ENG')
+        .replace(/ik/g, 'ek').replace(/Ik/g, 'Ek').replace(/IK/g, 'EK');
+
       return s;
     },
 
@@ -1939,6 +1960,14 @@
         .replace(/ou/g, 'o͘').replace(/Ou/g, 'O͘').replace(/OU/g, 'O͘')
         .replace(/ua/g, 'oa').replace(/Ua/g, 'Oa').replace(/UA/g, 'OA')
         .replace(/ue/g, 'oe').replace(/Ue/g, 'Oe').replace(/UE/g, 'OE')
+        .replace(/([iI])\u030dng/g, (m, iChar) => (iChar === 'I' ? 'E' : 'e') + '\u030dng')
+        .replace(/([iI])\u030dk/g, (m, iChar) => (iChar === 'I' ? 'E' : 'e') + '\u030dk')
+        .replace(/íng/g, 'éng').replace(/ìng/g, 'èng').replace(/îng/g, 'êng').replace(/īng/g, 'ēng').replace(/ǐng/g, 'ěng')
+        .replace(/Íng/g, 'Éng').replace(/Ìng/g, 'Èng').replace(/Îng/g, 'Êng').replace(/Īng/g, 'Ēng').replace(/Ǐng/g, 'Ěng')
+        .replace(/ÍNG/g, 'ÉNG').replace(/ÌNG/g, 'ÈNG').replace(/ÎNG/g, 'ÊNG').replace(/ĪNG/g, 'ĒNG')
+        .replace(/ík/g, 'ék').replace(/ìk/g, 'èk').replace(/ǐk/g, 'ěk')
+        .replace(/Ík/g, 'Ék').replace(/Ìk/g, 'Èk').replace(/Ǐk/g, 'Ěk')
+        .replace(/ÍK/g, 'ÉK').replace(/ÌK/g, 'ÈK')
         .replace(/ing/g, 'eng').replace(/Ing/g, 'Eng').replace(/ING/g, 'ENG')
         .replace(/ik/g, 'ek').replace(/Ik/g, 'Ek').replace(/IK/g, 'EK')
         .replace(/nn(?=[^a-zA-Z]|$)/g, 'ⁿ');
